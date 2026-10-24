@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Scam analysis lives in pure, React-free modules under src/engine (config/rules and config/brands hold all weights and domains); UI only calls analyze(). Why: deterministic, testable, offline by design.
