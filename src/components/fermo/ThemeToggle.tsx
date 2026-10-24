@@ -1,3 +1,4 @@
+import { useI18n } from "@/i18n";
 import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -5,6 +6,7 @@ const KEY = "fermo-theme";
 
 /** Only the theme preference is stored. Never message content. */
 export function ThemeToggle() {
+  const { t } = useI18n();
   const [light, setLight] = useState(true);
 
   useEffect(() => {
@@ -29,7 +31,7 @@ export function ThemeToggle() {
     }
   };
 
-  const label = light ? "Passa al tema scuro" : "Passa al tema chiaro";
+  const label = light ? t("Passa al tema scuro") : t("Passa al tema chiaro");
   return (
     <button
       type="button"

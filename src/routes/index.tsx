@@ -1,3 +1,4 @@
+import { useI18n, usePageLanguage } from "@/i18n";
 import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { MAX_LENGTH, analyzeMessage } from "@/engine/analyze";
@@ -39,6 +40,11 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  usePageLanguage(
+    "FERMO — Verifica comunicazioni e pagamenti per le PMI",
+    "Un controllo in più. Un rischio in meno. FERMO aiuta le PMI a riconoscere phishing e richieste economiche sospette con analisi locale e verifiche guidate.",
+  );
+  const { t, language } = useI18n();
   const [text, setText] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [empty, setEmpty] = useState(false);
@@ -71,35 +77,35 @@ function Index() {
     <main className="studio-page">
       <aside className="studio-intro">
         <h1>
-          Un controllo
-          <br /> in più.
+          {t("Un controllo")}
+          <br /> {t("in più.")}
           <br />
           <span>
-            Un rischio
-            <br /> in meno.
+            {t("Un rischio")}
+            <br /> {t("in meno.")}
           </span>
         </h1>
-        <p className="studio-lead">Verifica una comunicazione prima di agire.</p>
+        <p className="studio-lead">{t("Verifica una comunicazione prima di agire.")}</p>
         <div className="studio-benefits">
           <div>
             <FileSearch aria-hidden />
             <div>
-              <h2>Individua i segnali sospetti</h2>
-              <p>Analizza email, messaggi e richieste di pagamento.</p>
+              <h2>{t("Individua i segnali sospetti")}</h2>
+              <p>{t("Analizza email, messaggi e richieste di pagamento.")}</p>
             </div>
           </div>
           <div>
             <ShieldCheck aria-hidden />
             <div>
-              <h2>Un controllo per la tua azienda</h2>
-              <p>Indicazioni pratiche prima di prendere una decisione.</p>
+              <h2>{t("Un controllo per la tua azienda")}</h2>
+              <p>{t("Indicazioni pratiche prima di prendere una decisione.")}</p>
             </div>
           </div>
           <div>
             <Users aria-hidden />
             <div>
-              <h2>Più consapevolezza per tutti</h2>
-              <p>Strumenti semplici, pensati per le PMI.</p>
+              <h2>{t("Più consapevolezza per tutti")}</h2>
+              <p>{t("Strumenti semplici, pensati per le PMI.")}</p>
             </div>
           </div>
         </div>
@@ -107,15 +113,17 @@ function Index() {
       <div className="studio-workspace">
         <div className="studio-editor">
           <section aria-labelledby="analysis-title">
-            <h2 id="analysis-title">Controlla una comunicazione</h2>
+            <h2 id="analysis-title">{t("Controlla una comunicazione")}</h2>
             <p className="studio-description">
-              Incolla il testo di un'email o di un messaggio che ti sembra sospetto. FERMO ti aiuta
-              a riconoscere i segnali e capire come agire.
+              {t(
+                "Incolla il testo di un'email o di un messaggio che ti sembra sospetto. FERMO ti aiuta a riconoscere i segnali e capire come agire.",
+              )}
             </p>
             <div className="studio-input-label">
-              <label htmlFor="msg">Testo della comunicazione</label>
+              <label htmlFor="msg">{t("Testo della comunicazione")}</label>
               <span id="msg-help">
-                {text.length.toLocaleString("it-IT")} / {MAX_LENGTH.toLocaleString("it-IT")}
+                {text.length.toLocaleString(language === "it" ? "it-IT" : "en-GB")} /{" "}
+                {MAX_LENGTH.toLocaleString(language === "it" ? "it-IT" : "en-GB")}
               </span>
             </div>
             <textarea
@@ -130,37 +138,41 @@ function Index() {
               }}
               aria-describedby="msg-help msg-privacy"
               aria-invalid={empty}
-              placeholder="Incolla qui la comunicazione da controllare…"
+              placeholder={t("Incolla qui la comunicazione da controllare…")}
             />
             <div className="studio-input-footer">
               <span>
                 <LockKeyhole aria-hidden />
-                Analisi locale · Nessun messaggio salvato
+                {t("Analisi locale · Nessun messaggio salvato")}
               </span>
               {text && (
                 <button type="button" onClick={reset}>
-                  Cancella
+                  {t("Cancella")}
                 </button>
               )}
             </div>
             <p id="msg-privacy" className="studio-privacy">
-              Rimuovi dati personali, credenziali e informazioni riservate non necessarie
-              all'analisi.
+              {t(
+                "Rimuovi dati personali, credenziali e informazioni riservate non necessarie all'analisi.",
+              )}
+            </p>
+            <p className="studio-privacy">
+              {t("Il motore di analisi è configurato per messaggi in italiano.")}
             </p>
             {empty && (
               <p role="alert" className="studio-error">
-                Incolla prima il testo del messaggio, poi premi “Analizza”.
+                {t("Incolla prima il testo del messaggio, poi premi “Analizza”.")}
               </p>
             )}
             <Button type="button" onClick={() => run()} className="studio-analyze">
               <ScanText aria-hidden />
-              Analizza il messaggio
+              {t("Analizza il messaggio")}
               <ArrowRight aria-hidden />
             </Button>
           </section>
           <section className="studio-examples" aria-labelledby="ex">
-            <h2 id="ex">Prova con un esempio</h2>
-            <p>Seleziona uno scenario aziendale per vedere come funziona.</p>
+            <h2 id="ex">{t("Prova con un esempio")}</h2>
+            <p>{t("Seleziona uno scenario aziendale per vedere come funziona.")}</p>
             <div className="studio-example-buttons">
               {BUSINESS_EXAMPLES.map((ex) => (
                 <Button
@@ -172,12 +184,12 @@ function Index() {
                     run(ex.text);
                   }}
                 >
-                  {ex.label}
+                  {t(ex.label)}
                 </Button>
               ))}
             </div>
             <details>
-              <summary>Altri esempi: SMS, affitto e vendita online</summary>
+              <summary>{t("Altri esempi: SMS, affitto e vendita online")}</summary>
               <div className="studio-example-buttons">
                 {EXAMPLES.map((ex) => (
                   <Button
@@ -189,7 +201,7 @@ function Index() {
                       run(ex.text);
                     }}
                   >
-                    {ex.label}
+                    {t(ex.label)}
                   </Button>
                 ))}
               </div>
@@ -197,16 +209,17 @@ function Index() {
           </section>
         </div>
         <div className="studio-results" aria-live="polite">
-          <h2>{result ? "Il risultato dell'analisi" : "Un controllo prima di agire"}</h2>
+          <h2>{result ? t("Il risultato dell'analisi") : t("Un controllo prima di agire")}</h2>
           {result ? (
             <>
               <RiskGauge r={result} />
               <p className="mb-5 text-muted-foreground">
-                Il report completo è disponibile in una finestra dedicata, con segnali e verifiche
-                consigliate.
+                {t(
+                  "Il report completo è disponibile in una finestra dedicata, con segnali e verifiche consigliate.",
+                )}
               </p>
               <Button type="button" onClick={() => setReportOpen(true)} className="w-full min-h-12">
-                Apri il report completo
+                {t("Apri il report completo")}
               </Button>
             </>
           ) : (
@@ -214,34 +227,38 @@ function Index() {
               <span className="studio-empty-icon">
                 <ShieldCheck aria-hidden />
               </span>
-              <h3>Una decisione più consapevole, in tre passaggi.</h3>
+              <h3>{t("Una decisione più consapevole, in tre passaggi.")}</h3>
               <ol>
                 <li>
                   <span>1</span>
                   <div>
-                    <strong>Incolla la comunicazione</strong>
-                    <p>Un'email, un SMS o una richiesta di pagamento.</p>
+                    <strong>{t("Incolla la comunicazione")}</strong>
+                    <p>{t("Un'email, un SMS o una richiesta di pagamento.")}</p>
                   </div>
                 </li>
                 <li>
                   <span>2</span>
                   <div>
-                    <strong>Comprendi i segnali</strong>
-                    <p>Leggi il livello orientativo e le motivazioni.</p>
+                    <strong>{t("Comprendi i segnali")}</strong>
+                    <p>{t("Leggi il livello orientativo e le motivazioni.")}</p>
                   </div>
                 </li>
                 <li>
                   <span>3</span>
                   <div>
-                    <strong>Verifica prima di procedere</strong>
+                    <strong>{t("Verifica prima di procedere")}</strong>
                     <p>
-                      Segui i passaggi consigliati e condividi il riepilogo con il responsabile.
+                      {t(
+                        "Segui i passaggi consigliati e condividi il riepilogo con il responsabile.",
+                      )}
                     </p>
                   </div>
                 </li>
               </ol>
               <p className="studio-empty-note">
-                Il report si aprirà in una finestra dedicata. Puoi anche provare uno degli esempi.
+                {t(
+                  "Il report si aprirà in una finestra dedicata. Puoi anche provare uno degli esempi.",
+                )}
               </p>
             </div>
           )}
@@ -265,10 +282,12 @@ function Index() {
               tabIndex={-1}
               className="text-2xl font-extrabold outline-none"
             >
-              Il risultato dell'analisi
+              {t("Il risultato dell'analisi")}
             </DialogTitle>
             <DialogDescription>
-              Segnali rilevati e verifiche consigliate. L'indice è orientativo, non una probabilità.
+              {t(
+                "Segnali rilevati e verifiche consigliate. L'indice è orientativo, non una probabilità.",
+              )}
             </DialogDescription>
           </div>
           <div className="studio-results studio-report-body" key={result?.input}>
@@ -282,10 +301,11 @@ function Index() {
                 {result.safeReply && <SafeReply text={result.safeReply} />}
                 <Breakdown r={result} />
                 <section className="studio-disclaimer">
-                  <h3>Da tenere presente</h3>
+                  <h3>{t("Da tenere presente")}</h3>
                   <p>
-                    L'indice è orientativo, non una probabilità di truffa. FERMO non garantisce che
-                    un messaggio sia sicuro, non apre i link e non verifica il mittente.
+                    {t(
+                      "L'indice è orientativo, non una probabilità di truffa. FERMO non garantisce che un messaggio sia sicuro, non apre i link e non verifica il mittente.",
+                    )}
                   </p>
                 </section>
                 <Button
@@ -294,7 +314,7 @@ function Index() {
                   onClick={reset}
                   className="w-full min-h-12 whitespace-normal"
                 >
-                  Analizza un altro messaggio
+                  {t("Analizza un altro messaggio")}
                 </Button>
               </>
             )}
@@ -303,8 +323,8 @@ function Index() {
       </Dialog>
       <footer className="studio-footer">
         <LockKeyhole aria-hidden />
-        <strong>Il contenuto resta sul tuo dispositivo</strong>
-        <span>Analisi locale nel browser. Nessun login e nessun messaggio salvato.</span>
+        <strong>{t("Il contenuto resta sul tuo dispositivo")}</strong>
+        <span>{t("Analisi locale nel browser. Nessun login e nessun messaggio salvato.")}</span>
       </footer>
     </main>
   );

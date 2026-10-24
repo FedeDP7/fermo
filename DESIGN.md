@@ -13,3 +13,9 @@ Approved direction: Studio (first visual proposal). Target: the analysis page an
 Validation: production build, TypeScript, 54 existing tests; browser checks of analysis, summary copying, stale-result clearing, and responsive layout at 390px. Publication remains through Lovable.
 
 Analysis reports open automatically in an accessible modal with a fixed header and internally scrolling body. The page keeps only a compact risk summary and a reopen button. Escape and the close control dismiss the modal; focus returns to the editor.
+
+## Floating navigation and languages
+
+The shared navbar uses a dark navy capsule with a thin border, subtle shadow, centered navigation, a white transparent brand symbol and IT | EN controls. On mobile a compact accessible menu retains the logo, languages and theme control.
+
+Italian is the default. Language lives only in React state, survives route navigation and is not persisted. Authored translations are centralised under src/i18n: en.json for interface and generated guidance, report.ts for signal/link copy by stable IDs and privacy-safe English summaries. Input, excerpts, URLs, scoring and engine rules remain unchanged. The English interface explicitly states that detection is configured for Italian messages. Browser lang and page metadata update with the selected interface language.
