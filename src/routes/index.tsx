@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import { MAX_LENGTH, analyzeMessage } from "@/engine/analyze";
 import { EXAMPLES } from "@/engine/examples";
 import type { AnalysisResult } from "@/engine/types";
+import { ThemeToggle } from "@/components/fermo/ThemeToggle";
 import { Breakdown, LinkAnalysis, Recommendations, RiskGauge, SafeReply, SignalList } from "@/components/fermo/Results";
 
 export const Route = createFileRoute("/")({
@@ -49,7 +50,10 @@ function Index() {
   return (
     <main className="mx-auto max-w-[620px] px-5 py-10 sm:py-14">
       <header className="mb-8">
-        <p className="text-2xl font-extrabold tracking-[6px] text-primary">FERMO</p>
+        <div className="flex items-center justify-between">
+          <p className="text-2xl font-extrabold tracking-[6px] text-primary">FERMO</p>
+          <ThemeToggle />
+        </div>
         <h1 className="mt-4 text-4xl font-extrabold leading-tight sm:text-5xl">Un secondo prima di perdere soldi.</h1>
         <p className="mt-4 text-lg text-muted-foreground">Messaggio strano? Incollalo qui. FERMO ti mostra a cosa fare attenzione e come proteggerti.</p>
       </header>
@@ -105,7 +109,7 @@ function Index() {
           <LinkAnalysis r={result} />
           {result.safeReply && <SafeReply text={result.safeReply} />}
           <Breakdown r={result} />
-          <section className="space-y-2 rounded-2xl border border-border p-5 text-base text-muted-foreground">
+          <section className="animate-card-in space-y-2 rounded-2xl border border-border p-5 text-base text-muted-foreground">
             <h2 className="font-bold text-foreground">Avvertenze</h2>
             <p>L'indice è orientativo: si basa su segnali noti e non è una probabilità di truffa. FERMO non può garantire che un messaggio sia sicuro.</p>
             <p>FERMO non apre i link, non verifica il mittente e non offre consulenza legale o finanziaria.</p>
