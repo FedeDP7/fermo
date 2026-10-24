@@ -709,3 +709,56 @@ textarea {
 .studio-results .text-primary {
   color: var(--ring);
 }
+.studio-report-dialog {
+  width: calc(100% - 32px);
+  max-width: 860px;
+  max-height: min(90dvh, 960px);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--card);
+  border-radius: 16px;
+}
+.studio-report-heading {
+  padding: 28px 64px 22px 28px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.studio-report-heading p {
+  margin-top: 10px;
+  line-height: 1.6;
+}
+.studio-report-dialog > button {
+  min-width: 44px;
+  min-height: 44px;
+  display: grid;
+  place-items: center;
+  top: 12px;
+  right: 12px;
+}
+.studio-report-body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: var(--input) var(--card);
+  min-height: 0;
+  padding: 28px;
+  margin: 0;
+  border: 0;
+}
+@media (max-width: 600px) {
+  .studio-report-dialog {
+    width: calc(100% - 16px);
+    max-height: 94dvh;
+  }
+  .studio-report-heading {
+    padding: 22px 58px 18px 20px;
+  }
+  .studio-report-heading h2 {
+    font-size: 20px;
+  }
+  .studio-report-body {
+    padding: 20px;
+  }
+}

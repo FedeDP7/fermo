@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import { MAX_LENGTH, analyzeMessage } from "@/engine/analyze";
 import { BUSINESS_EXAMPLES, EXAMPLES } from "@/engine/examples";
 import type { AnalysisResult } from "@/engine/types";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, LockKeyhole, ScanText, FileSearch, ShieldCheck, Users } from "lucide-react";
 import { CompanyProcedure } from "@/components/fermo/CompanyProcedure";
@@ -41,8 +42,9 @@ function Index() {
   const [text, setText] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [empty, setEmpty] = useState(false);
-  const resultRef = useRef<HTMLDivElement>(null);
+  const [reportOpen, setReportOpen] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const reportTitleRef = useRef<HTMLHeadingElement>(null);
 
   const run = (t = text) => {
     if (!t.trim()) {
@@ -53,10 +55,11 @@ function Index() {
     }
     setEmpty(false);
     setResult(analyzeMessage(t));
-    setTimeout(() => resultRef.current?.focus(), 50);
+    setReportOpen(true);
   };
 
   const reset = () => {
+    setReportOpen(false);
     setText("");
     setResult(null);
     setEmpty(false);
@@ -193,31 +196,17 @@ function Index() {
             </details>
           </section>
         </div>
-        <div className="studio-results" ref={resultRef} tabIndex={-1} aria-live="polite">
+        <div className="studio-results" aria-live="polite">
           <h2>{result ? "Il risultato dell'analisi" : "Un controllo prima di agire"}</h2>
           {result ? (
             <>
               <RiskGauge r={result} />
-              <Recommendations r={result} />
-              <CompanyProcedure key={`${result.input}-${result.score}`} r={result} />
-              <SignalList r={result} />
-              <LinkAnalysis r={result} />
-              {result.safeReply && <SafeReply text={result.safeReply} />}
-              <Breakdown r={result} />
-              <section className="studio-disclaimer">
-                <h3>Da tenere presente</h3>
-                <p>
-                  L'indice è orientativo, non una probabilità di truffa. FERMO non garantisce che un
-                  messaggio sia sicuro, non apre i link e non verifica il mittente.
-                </p>
-              </section>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={reset}
-                className="w-full min-h-12 whitespace-normal"
-              >
-                Analizza un altro messaggio
+              <p className="mb-5 text-muted-foreground">
+                Il report completo è disponibile in una finestra dedicata, con segnali e verifiche
+                consigliate.
+              </p>
+              <Button type="button" onClick={() => setReportOpen(true)} className="w-full min-h-12">
+                Apri il report completo
               </Button>
             </>
           ) : (
@@ -252,12 +241,66 @@ function Index() {
                 </li>
               </ol>
               <p className="studio-empty-note">
-                Il risultato apparirà qui. Per iniziare puoi anche provare uno degli esempi.
+                Il report si aprirà in una finestra dedicata. Puoi anche provare uno degli esempi.
               </p>
             </div>
           )}
         </div>
       </div>
+      <Dialog open={reportOpen && !!result} onOpenChange={setReportOpen}>
+        <DialogContent
+          className="studio-report-dialog"
+          onOpenAutoFocus={(event) => {
+            event.preventDefault();
+            reportTitleRef.current?.focus();
+          }}
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            inputRef.current?.focus({ preventScroll: true });
+          }}
+        >
+          <div className="studio-report-heading">
+            <DialogTitle
+              ref={reportTitleRef}
+              tabIndex={-1}
+              className="text-2xl font-extrabold outline-none"
+            >
+              Il risultato dell'analisi
+            </DialogTitle>
+            <DialogDescription>
+              Segnali rilevati e verifiche consigliate. L'indice è orientativo, non una probabilità.
+            </DialogDescription>
+          </div>
+          <div className="studio-results studio-report-body" key={result?.input}>
+            {result && (
+              <>
+                <RiskGauge r={result} />
+                <Recommendations r={result} />
+                <CompanyProcedure key={`${result.input}-${result.score}`} r={result} />
+                <SignalList r={result} />
+                <LinkAnalysis r={result} />
+                {result.safeReply && <SafeReply text={result.safeReply} />}
+                <Breakdown r={result} />
+                <section className="studio-disclaimer">
+                  <h3>Da tenere presente</h3>
+                  <p>
+                    L'indice è orientativo, non una probabilità di truffa. FERMO non garantisce che
+                    un messaggio sia sicuro, non apre i link e non verifica il mittente.
+                  </p>
+                </section>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={reset}
+                  className="w-full min-h-12 whitespace-normal"
+                >
+                  Analizza un altro messaggio
+                </Button>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
       <footer className="studio-footer">
         <LockKeyhole aria-hidden />
         <strong>Il contenuto resta sul tuo dispositivo</strong>

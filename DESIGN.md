@@ -11,3 +11,5 @@ Approved direction: Studio (first visual proposal). Target: the analysis page an
 - Preserve labels identifying simulated company information and future SaaS features.
 
 Validation: production build, TypeScript, 54 existing tests; browser checks of analysis, summary copying, stale-result clearing, and responsive layout at 390px. Publication remains through Lovable.
+
+Analysis reports open automatically in an accessible modal with a fixed header and internally scrolling body. The page keeps only a compact risk summary and a reopen button. Escape and the close control dismiss the modal; focus returns to the editor.
