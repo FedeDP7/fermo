@@ -36,7 +36,7 @@ const BY_CONTEXT: Record<Context, string[]> = {
 const REPLIES: Partial<Record<Context, string>> = {
   AFFITTO: "Buongiorno, sono interessato. Prima di qualsiasi pagamento vorrei visitare l'appartamento di persona e incontrarla. Quando possiamo fissare un appuntamento?",
   COMPRAVENDITA: "Ciao, sono interessato. Preferisco pagare con PayPal \"beni e servizi\" o tramite la piattaforma, oppure di persona al ritiro. Va bene per te?",
-  ISTITUZIONALE: "",
+
 };
 
 export function buildRecommendations(ctx: Context, level: Level, signals: Signal[]): { recommendations: string[]; safeReply: string | null } {
@@ -44,5 +44,5 @@ export function buildRecommendations(ctx: Context, level: Level, signals: Signal
   if (signals.some((s) => s.id === "paypal_amici") && ctx !== "COMPRAVENDITA") recs[2] = "Non pagare con PayPal 'amici e familiari' chi non conosci: non sei protetto.";
   if (level === "BASSO") recs[2] = "Nessun segnale forte trovato, ma resta prudente: FERMO non può garantire che il messaggio sia sicuro.";
   const reply = REPLIES[ctx];
-  return { recommendations: recs.slice(0, 3), safeReply: reply ? reply : level !== "BASSO" && ctx !== "ISTITUZIONALE" && ctx !== "CONSEGNA" && ctx !== "BANCA_PAGAMENTI" ? null : null };
+  return { recommendations: recs.slice(0, 3), safeReply: level !== "BASSO" && reply ? reply : null };
 }
