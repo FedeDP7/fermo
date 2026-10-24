@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Scam analysis lives in pure, React-free modules under src/engine (config/rules and config/brands hold all weights and domains); UI only calls analyzeMessage(); scoring is group-capped and bonuses come only from active signals. Why: deterministic, testable, offline by design.
+- Theme is a `.light` class on <html> overriding the CSS variables in src/styles.css (dark is :root default); only the theme preference is persisted (localStorage "fermo-theme"), never message content.
