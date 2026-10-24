@@ -111,3 +111,17 @@ describe("QA build 3", () => {
     expect(() => analyzeMessage('<script>alert(1)</script><img src=x onerror=alert(1)>')).not.toThrow();
   });
 });
+
+describe("excerpts", () => {
+  it("excerpt text is the user's original wording at the tracked position", () => {
+    const t = "Per bloccare l'appartamento   INVIAMI subito una caparra. Sono all’estero.";
+    const r = analyzeMessage(t);
+    for (const s of r.signals) if (s.excerpt) expect(t.slice(s.excerpt.start, s.excerpt.end)).toBe(s.excerpt.text);
+    expect(r.signals.find((s) => s.id === "caparra")!.excerpt!.text).toBe("caparra");
+    expect(r.signals.find((s) => s.id === "no_visita")!.excerpt!.text).toBe("Sono all’estero");
+  });
+  it("accented text maps back correctly", () => {
+    const r = analyzeMessage("Ciao mamma, è il mio nuovo numero. Mi servono 300 euro, puoi farmi un bonifico?");
+    expect(r.signals.find((s) => s.id === "finto_parente")!.excerpt!.text).toBe("nuovo numero");
+  });
+});

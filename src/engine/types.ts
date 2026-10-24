@@ -17,6 +17,8 @@ export interface Signal {
   explanation: string;
   group: Group;
   weight: number;
+  /** Original-text excerpt that triggered the rule, only when its position is certain. */
+  excerpt?: { start: number; end: number; text: string };
 }
 
 export interface ParsedUrl {
@@ -74,6 +76,8 @@ export interface Breakdown {
 export type Situation = "CREDENZIALI" | "PHISHING" | "FINTO_PARENTE" | "AFFITTO" | "MARKETPLACE" | "PAGAMENTO" | "NESSUNA";
 
 export interface AnalysisResult {
+  /** The analysed input, unchanged (used for highlighting). */
+  input: string;
   score: number;
   level: Level;
   context: Context;
