@@ -1,4 +1,4 @@
-export type BrandKind = "ente" | "banca" | "pagamenti" | "marketplace" | "corriere";
+export type BrandKind = "ente" | "banca" | "pagamenti" | "marketplace" | "corriere" | "aziendale";
 
 export interface Brand {
   name: string;
@@ -11,6 +11,8 @@ export interface Brand {
 }
 
 export const BRANDS: Brand[] = [
+  { name: "Microsoft 365 / Outlook", kind: "aziendale", aliases: [/\bmicrosoft\s*365\b/, /\boffice\s*365\b/, /\boutlook\b/, /\bmicrosoft\b/], domains: ["microsoft.com", "microsoftonline.com", "office.com", "office365.com", "outlook.com", "live.com"], tokens: ["microsoft", "microsoft365", "office365", "outlook"] },
+  { name: "Google Workspace", kind: "aziendale", aliases: [/\bgoogle workspace\b/, /\bgoogle\b/], domains: ["google.com", "google.it"], tokens: ["google", "googleworkspace"] },
   { name: "Agenzia delle Entrate-Riscossione", kind: "ente", aliases: [/\bagenzia (delle )?entrate[ -]riscossione\b/, /\bader\b/], domains: ["agenziaentrateriscossione.gov.it"], tokens: ["entrateriscossione"] },
   { name: "Agenzia delle Entrate", kind: "ente", aliases: [/\bagenzia (delle )?entrate\b/, /\ba+g\.? ?entrate\b/, /\bag\.? entrate\b/, /\bade\b/, /\bagenziaentrate\b/], domains: ["agenziaentrate.gov.it"], tokens: ["agenziaentrate", "entrate"] },
   { name: "INPS", kind: "ente", aliases: [/\binps\b/], domains: ["inps.it"], tokens: ["inps"] },

@@ -24,15 +24,16 @@ export function analyzeMessage(text: string): AnalysisResult {
     for (const s of signals) {
       const sp = spans.get(s.id);
       if (!sp || sp.end <= sp.start) continue;
-      const start = map[sp.start]!;
-      const lastIdx = map[sp.end - 1]!;
+      const start = map[sp.start];
+      const lastIdx = map[sp.end - 1];
+      if (start === undefined || lastIdx === undefined) continue;
       const end = lastIdx + ((input.codePointAt(lastIdx) ?? 0) > 0xffff ? 2 : 1);
       s.excerpt = { start, end, text: input.slice(start, end) };
     }
   }
   const breakdown = computeScore(signals);
   const level = levelFor(breakdown.total);
-  const situation = detectSituation(signals, context);
+  const situation = detectSituation(signals, context, brands.claimed?.kind === "aziendale");
   const { recommendations, safeReply } = buildRecommendations(situation, level);
   return {
     input,

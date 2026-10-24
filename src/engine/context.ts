@@ -1,6 +1,7 @@
 import type { Context } from "./types";
 
 const KEYWORDS: Record<Exclude<Context, "GENERICO">, RegExp[]> = {
+  AZIENDALE: [/\bfornitore\b/, /\bfattura\b/, /\bamministratore\b/, /\bazienda(le)?\b/, /\bmicrosoft 365\b/, /\bgoogle workspace\b/, /\bcoordinate bancarie\b/, /\bbeneficiario\b/],
   ISTITUZIONALE: [/agenzia (delle )?entrate/, /\ba+g\.? ?entrate\b/, /\binps\b/, /\bfisco\b/, /\bfiscale\b/, /\bf24\b/, /\bspid\b/, /\bministero\b/, /cartella esattoriale/],
   BANCA_PAGAMENTI: [/\bbanca\b/, /\bconto corrente\b/, /\bhome banking\b/, /\bpostepay\b/, /\baddebito\b/, /\btransazione\b/, /\bcarta di credito\b/],
   CONSEGNA: [/\bpacco\b/, /\bcorriere\b/, /\bconsegna\b/, /\bgiacenza\b/, /\btracking\b/],
@@ -10,6 +11,7 @@ const KEYWORDS: Record<Exclude<Context, "GENERICO">, RegExp[]> = {
 };
 
 export const CONTEXT_LABELS: Record<Context, string> = {
+  AZIENDALE: "Comunicazione aziendale",
   ISTITUZIONALE: "Ente pubblico / fisco",
   BANCA_PAGAMENTI: "Banca o pagamenti",
   CONSEGNA: "Consegna pacchi",

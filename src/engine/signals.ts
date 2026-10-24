@@ -6,6 +6,10 @@ import type { LinkReport, Signal } from "./types";
 type TextId = keyof typeof TEXT_WEIGHTS;
 
 const TEXT_INFO: Record<TextId, { title: string; explanation: string }> = {
+  cambio_iban: { title: "Richiesta di cambio coordinate bancarie", explanation: "Un cambio IBAN può essere legittimo, ma va confermato con un recapito già verificato prima di aggiornare l'anagrafica o pagare." },
+  dirigente_pagamento: { title: "Richiesta economica attribuita a un dirigente", explanation: "Il testo dichiara un ruolo dirigenziale e richiede denaro. FERMO non verifica l'identità: urgenza e riservatezza possono indicare una frode BEC." },
+  ostacola_verifica: { title: "Scoraggia verifiche indipendenti", explanation: "La richiesta invita a non telefonare, non coinvolgere colleghi o saltare controlli. Questo riduce la possibilità di verificare prima di agire." },
+  beneficiario_cambiato: { title: "Beneficiario diverso dal precedente", explanation: "Verifica che il nuovo destinatario del pagamento corrisponda al contratto e al fornitore tramite un canale indipendente." },
   credenziali: { title: "Chiede codici o password", explanation: "Ti viene chiesto di comunicare OTP, PIN, password o CVV. Nessuna banca, ente o persona seria li chiede: con questi codici possono svuotarti il conto." },
   finto_parente: { title: "Possibile finto familiare", explanation: "Qualcuno dice di avere un nuovo numero e ti chiede soldi. È una truffa molto diffusa: chiama il numero che conosci già." },
   caparra: { title: "Caparra prima di vedere la casa", explanation: "Ti chiedono soldi per 'bloccare' l'immobile prima che tu l'abbia visto o abbia verificato chi lo affitta." },
@@ -41,7 +45,7 @@ const LINK_TITLES: Record<string, string> = {
   punycode: "Caratteri speciali nell'indirizzo",
 };
 
-const ACTION = String.raw`\b(paga|pagare|pagami|pagarmi|invia|inviami|inviare|manda|mandami|mandare|clicca|accedi|conferma|verifica|aggiorna|versa|versare|bonifico|caparra|ricarica|rispondi|inserisci|regolarizza|chiama|compila|scarica|controlla|mi serve|mi servono)\b`;
+const ACTION = String.raw`\b(paga|pagare|pagamento|pagami|pagarmi|procedi|effettuare|disponi|disponga|invia|inviami|inviare|manda|mandami|mandare|clicca|accedi|conferma|verifica|aggiorna|versa|versare|bonifico|caparra|ricarica|rispondi|inserisci|regolarizza|chiama|compila|scarica|controlla|mi serve|mi servono)\b`;
 const ACTION_RE = new RegExp(ACTION);
 const REQ_VERB = String.raw`\b(mandami|mandameli|mandamelo|inviami|invia|inviare|dammi|dimmi|comunicami|comunica|comunicare|fornisci(mi)?|fornire|inserisci|digita|conferma|confermare|scrivimi|leggimi|girami|passami|dettami|ripetimi|mi serve|ho bisogno del|devi (inviare|comunicare|dare|fornire|inserire|confermare))\b`;
 const CRED_TARGET = String.raw`\b(otp|pin|password|cvv|cvc|credenziali|codic[ei] (otp|di verifica|di sicurezza|ricevut[oi]|sms|di accesso|che ti (e )?arrivat[oi]|a \d cifre)|dati della (tua )?carta|numero della (tua )?carta)\b`;
@@ -109,7 +113,12 @@ const PROPERTY = /\b(affitt\w*|appartamento|casa|stanza|camera|immobile|chiavi|(
 
 /** Detects text rules. `spans` holds the normalized-text position of the triggering excerpt, when tracked. */
 export function detectTextSignals(norm: string, spans: Map<string, Span> = new Map()): TextId[] {
-  const cls = clauseSpans(norm);
+  // "Per evitare un'interruzione, conferma ..." is an action request, not
+  // protective advice. Keep the offset of the request after its purpose clause.
+  const cls = clauseSpans(norm).map((clause) => {
+    const purpose = /^per evitare\b[^,]{0,100},\s*/.exec(clause.text);
+    return purpose ? { text: clause.text.slice(purpose[0].length), start: clause.start + purpose[0].length } : clause;
+  });
   const ids: TextId[] = [];
   const on = (id: TextId, cond: Span | boolean | null) => {
     if (!cond) return;
@@ -118,6 +127,13 @@ export function detectTextSignals(norm: string, spans: Map<string, Span> = new M
   };
 
   on("credenziali", inClause(cls, new RegExp(`${REQ_VERB}[^.]{0,40}?${CRED_TARGET}`)));
+
+  on("cambio_iban", inClause(cls, /\b((nuov[oe]|cambiat[oei]|aggiornat[oei])\s+(iban|coordinate( bancarie)?)|(cambio|cambiamento|modifica|variazione)\s+(dell[' ]?|di |del |alle )?(iban|coordinate( bancarie)?)|iban\s+(nuovo|cambiato|aggiornato)|coordinate( bancarie)?\s+(nuove|cambiate|aggiornate))\b/));
+  const director = inClause(cls, /\b(sono (il |l[' ]|la )?(amministratore|direttore|direttrice|ceo|titolare|presidente)|da parte (del|dell[' ])\s*(amministratore|direttore|ceo)|firmato[ :]+(amministratore|direttore|ceo))\b/);
+  const requestMoney = inClause(cls, /\b(ho bisogno|chiedo|chiediamo|devi|disponi|disponga|effettua|esegui|invia\w*|manda\w*|procedi|puoi)\b[^.]{0,90}\b(bonifico|pagamento|soldi|denaro|trasferimento)\b/);
+  on("dirigente_pagamento", requestMoney && director);
+  on("ostacola_verifica", hit(/\b(evitate di chiamare|non chiamar(mi|e)|non coinvolgere|non contattare|senza (verifiche|approvazione)|salta(re)? (i controlli|la procedura)|aggira(re)? (i controlli|la procedura))\b/, norm));
+  on("beneficiario_cambiato", inClause(cls, /\b((nuovo|diverso) beneficiario|beneficiario (cambiato|diverso|aggiornato)|cambio (del )?beneficiario)\b/));
 
   const newNumber = /\b(nuovo numero|numero nuovo|cambiato numero|ho perso il telefono|telefono (rotto|caduto|guasto)|salva (questo|il mio nuovo) numero|questo e il mio (nuovo )?numero)\b/;
   const moneyAsk = /\b(bonifico|soldi|pagare|pagamento|prestito|prestarmi|anticipar\w*|ricarica|\d+ ?(euro|eur|€))\b/;
@@ -134,11 +150,11 @@ export function detectTextSignals(norm: string, spans: Map<string, Span> = new M
 
   on("documenti", inClause(cls, /\b(inviami|mandami|manda|invia|mi serve|fammi avere|serve)\b[^.]{0,40}\b(documento|carta d'identita|carta di identita|patente|codice fiscale|passaporto|selfie|busta paga|foto (del|della) (documento|carta))\b/));
   on("fuori_piattaforma", inClause(cls, /\b(continuiamo|passiamo|scrivimi|contattami|sentiamoci|possiamo (continuare|sentirci|parlare)|parliamo|spostiamoci|aggiungimi)\b[^.]{0,25}\b(whatsapp|telegram|e-?mail|signal|messenger)\b/) || hit(/\b(whatsapp|telegram) al (numero )?\+?\d/, norm));
-  on("segretezza", hit(/\b(non dirlo a nessuno|non dire (niente|nulla) a nessuno|tienilo (segreto|per te)|(resti|rimanga) tra noi|non avvisare (la banca|nessuno)|non parlarne con nessuno|non dirlo (alla banca|a mamma|a papa))\b/, norm));
+  on("segretezza", hit(/\b(operazione riservata|non coinvolgere altri colleghi|non dirlo a nessuno|non dire (niente|nulla) a nessuno|tienilo (segreto|per te)|(resti|rimanga) tra noi|non avvisare (la banca|nessuno)|non parlarne con nessuno|non dirlo (alla banca|a mamma|a papa))\b/, norm));
 
   const threat = /\b(blocc(ato|ata|o|heremo|hiamo|era|herà)|sospes[oa]|sospensione|sospenderemo|sanzion\w+|pignorament\w+|chiusura del conto|disattiv\w+|denuncia|azioni legali|multa)\b/;
   on("minaccia", ACTION_RE.test(norm) && inClause(cls, threat));
-  const urgent = /\b(entro (\d+|un'?|una|poche|oggi|domani)\s?(ore|ora|minuti|giorni|giorno)?|subito|immediatamente|al piu presto|urgent[ei]|urgentemente|oggi stesso|ultimo avviso|scade (oggi|domani)|senza ritardo)/;
+  const urgent = /\b(entro (\d+|un'?|una|due|tre|poche|oggi|domani)\s?(ore|ora|minuti|giorni|giorno)?|subito|immediatamente|al piu presto|urgent[ei]|urgentemente|oggi stesso|ultimo avviso|scade (oggi|domani)|senza ritardo)/;
   on("urgenza", cls.reduce<Span | null>((found, { text: c, start }) => { if (found) return found; const m = urgent.exec(c); return m && ACTION_RE.test(c) && !/\bnon (c'e|ce) fretta|non ho fretta\b/.test(c) && !negatedBefore(c, m.index + 1) ? { start: start + m.index, end: start + m.index + m[0].length } : null; }, null));
 
   on("invito_comunicazione", inClause(cls, /\b(controlla|visualizza|consulta|apri|leggi|scarica|verifica)\b[^.]{0,40}\b(comunicazion\w+|messaggio|documento|notifica|sistema|dati aggiornati|avviso|pratica|fattura)\b/) || hit(/\be disponibile una (nuova )?(comunicazione|notifica)\b/, norm));
