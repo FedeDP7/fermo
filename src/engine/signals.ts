@@ -41,7 +41,7 @@ const LINK_TITLES: Record<string, string> = {
   punycode: "Caratteri speciali nell'indirizzo",
 };
 
-const ACTION = String.raw`\b(paga|pagare|pagami|pagarmi|invia|inviami|inviare|manda|mandami|mandare|clicca|accedi|conferma|verifica|aggiorna|versa|versare|bonifico|caparra|ricarica|rispondi|inserisci|regolarizza|chiama|compila|scarica|controlla)\b`;
+const ACTION = String.raw`\b(paga|pagare|pagami|pagarmi|invia|inviami|inviare|manda|mandami|mandare|clicca|accedi|conferma|verifica|aggiorna|versa|versare|bonifico|caparra|ricarica|rispondi|inserisci|regolarizza|chiama|compila|scarica|controlla|mi serve|mi servono)\b`;
 const ACTION_RE = new RegExp(ACTION);
 const REQ_VERB = String.raw`\b(mandami|mandameli|mandamelo|inviami|invia|inviare|dammi|dimmi|comunicami|comunica|comunicare|fornisci(mi)?|fornire|inserisci|digita|conferma|confermare|scrivimi|leggimi|girami|passami|dettami|ripetimi|mi serve|ho bisogno del|devi (inviare|comunicare|dare|fornire|inserire|confermare))\b`;
 const CRED_TARGET = String.raw`\b(otp|pin|password|cvv|cvc|credenziali|codic[ei] (otp|di verifica|di sicurezza|ricevut[oi]|sms|di accesso|che ti (e )?arrivat[oi]|a \d cifre)|dati della (tua )?carta|numero della (tua )?carta)\b`;
@@ -121,7 +121,7 @@ export function detectTextSignals(norm: string): TextId[] {
 
   const threat = /\b(blocc(ato|ata|o|heremo|hiamo|era|herà)|sospes[oa]|sospensione|sospenderemo|sanzion\w+|pignorament\w+|chiusura del conto|disattiv\w+|denuncia|azioni legali|multa)\b/;
   on("minaccia", inClause(cls, threat) && ACTION_RE.test(norm));
-  const urgent = /\b(entro (\d+|un'?|una|poche|oggi|domani)\s?(ore|ora|minuti|giorni|giorno)?|subito|immediatamente|al piu presto|urgente(mente)?|oggi stesso|ultimo avviso|scade (oggi|domani)|senza ritardo)/;
+  const urgent = /\b(entro (\d+|un'?|una|poche|oggi|domani)\s?(ore|ora|minuti|giorni|giorno)?|subito|immediatamente|al piu presto|urgent[ei]|urgentemente|oggi stesso|ultimo avviso|scade (oggi|domani)|senza ritardo)/;
   on("urgenza", cls.some((c) => { const m = urgent.exec(c); return !!m && ACTION_RE.test(c) && !/\bnon (c'e|ce) fretta|non ho fretta\b/.test(c) && !negatedBefore(c, m.index + 1); }));
 
   on("invito_comunicazione", inClause(cls, /\b(controlla|visualizza|consulta|apri|leggi|scarica|verifica)\b[^.]{0,40}\b(comunicazion\w+|messaggio|documento|notifica|sistema|dati aggiornati|avviso|pratica|fattura)\b/) || /\be disponibile una (nuova )?(comunicazione|notifica)\b/.test(norm));
