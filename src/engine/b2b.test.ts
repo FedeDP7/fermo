@@ -52,6 +52,6 @@ describe("B2B rules and privacy", () => {
     const r = analyzeMessage(input);
     const summary = buildManagerSummary(r);
     for (const secret of [input, "IT60X0542811101000000123456", "Mario Rossi", "mario@azienda.it", "segreto123", "evil.example.com"]) expect(summary).not.toContain(secret);
-    expect(summary).toContain("CAMBIO");
+    expect(r.situation).toBe("CAMBIO_IBAN");
   });
 });
