@@ -5,10 +5,15 @@ const KEY = "fermo-theme";
 
 /** Only the theme preference is stored. Never message content. */
 export function ThemeToggle() {
-  const [light, setLight] = useState(false);
+  const [light, setLight] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem(KEY) === "light";
+    let saved = true;
+    try {
+      saved = localStorage.getItem(KEY) !== "dark";
+    } catch {
+      /* Theme remains usable when storage is unavailable. */
+    }
     setLight(saved);
     document.documentElement.classList.toggle("light", saved);
   }, []);
@@ -17,7 +22,11 @@ export function ThemeToggle() {
     const next = !light;
     setLight(next);
     document.documentElement.classList.toggle("light", next);
-    localStorage.setItem(KEY, next ? "light" : "dark");
+    try {
+      localStorage.setItem(KEY, next ? "light" : "dark");
+    } catch {
+      /* Preference is optional. */
+    }
   };
 
   const label = light ? "Passa al tema scuro" : "Passa al tema chiaro";

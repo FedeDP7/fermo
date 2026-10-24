@@ -4,17 +4,32 @@ import { MAX_LENGTH, analyzeMessage } from "@/engine/analyze";
 import { BUSINESS_EXAMPLES, EXAMPLES } from "@/engine/examples";
 import type { AnalysisResult } from "@/engine/types";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, LockKeyhole, ScanText } from "lucide-react";
+import { ArrowRight, LockKeyhole, ScanText, FileSearch, ShieldCheck, Users } from "lucide-react";
 import { CompanyProcedure } from "@/components/fermo/CompanyProcedure";
-import { Breakdown, LinkAnalysis, Recommendations, RiskGauge, SafeReply, SignalList } from "@/components/fermo/Results";
+import {
+  Breakdown,
+  LinkAnalysis,
+  Recommendations,
+  RiskGauge,
+  SafeReply,
+  SignalList,
+} from "@/components/fermo/Results";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "FERMO — Verifica comunicazioni e pagamenti per le PMI" },
-      { name: "description", content: "Un controllo in più. Un rischio in meno. FERMO aiuta le PMI a riconoscere phishing e richieste economiche sospette con analisi locale e verifiche guidate." },
+      {
+        name: "description",
+        content:
+          "Un controllo in più. Un rischio in meno. FERMO aiuta le PMI a riconoscere phishing e richieste economiche sospette con analisi locale e verifiche guidate.",
+      },
       { property: "og:title", content: "FERMO — Un controllo in più. Un rischio in meno." },
-      { property: "og:description", content: "Analizza comunicazioni aziendali, riconosci segnali di frode e segui una procedura prudente prima di autorizzare un pagamento." },
+      {
+        property: "og:description",
+        content:
+          "Analizza comunicazioni aziendali, riconosci segnali di frode e segui una procedura prudente prima di autorizzare un pagamento.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -50,86 +65,203 @@ function Index() {
   };
 
   return (
-    <main className="mx-auto max-w-4xl px-5 py-8 sm:py-10">
-      <header className="mb-9">
-        <p className="text-base font-bold text-primary">PER LE PMI · Un controllo in più. Un rischio in meno.</p>
-        <h1 className="mt-4 max-w-3xl text-3xl font-extrabold leading-tight sm:text-4xl">Proteggi la tua azienda dalle frodi digitali, prima che diventino un costo.</h1>
-        <p className="mt-4 max-w-3xl text-lg text-muted-foreground">FERMO aiuta dipendenti e responsabili a riconoscere comunicazioni sospette, tentativi di phishing e richieste di pagamento fraudolente, spiegando i rischi e indicando come agire.</p>
-      </header>
-
-      <section className="border-t border-border pt-6">
-        <h2 className="text-2xl font-extrabold">Controlla una comunicazione sospetta</h2>
-        <p className="mb-5 mt-2 text-base text-muted-foreground">Hai ricevuto un'email, una richiesta di pagamento o un messaggio insolito? Analizzalo prima di procedere.</p>
-        <label htmlFor="msg" className="mb-2 block text-lg font-bold">Incolla la comunicazione</label>
-        <textarea
-          id="msg"
-          ref={inputRef}
-          value={text}
-          maxLength={MAX_LENGTH}
-          onChange={(e) => { setText(e.target.value); if (empty) setEmpty(false); }}
-          aria-describedby="msg-help msg-privacy"
-          aria-invalid={empty}
-          placeholder="Email di un fornitore, richiesta di bonifico, avviso di accesso…"
-          className="min-h-[190px] w-full resize-y rounded-xl border-2 border-input bg-background p-4 text-lg placeholder:text-muted-foreground focus:border-primary focus:outline-none"
-        />
-        <div id="msg-help" className="mt-1 flex justify-between text-base text-muted-foreground">
-          <span>{text.length.toLocaleString("it-IT")} / {MAX_LENGTH.toLocaleString("it-IT")} caratteri</span>
-          {text && <Button type="button" variant="link" onClick={reset} className="h-auto p-0 text-base">Cancella</Button>}
+    <main className="studio-page">
+      <aside className="studio-intro">
+        <h1>
+          Un controllo
+          <br /> in più.
+          <br />
+          <span>
+            Un rischio
+            <br /> in meno.
+          </span>
+        </h1>
+        <p className="studio-lead">Verifica una comunicazione prima di agire.</p>
+        <div className="studio-benefits">
+          <div>
+            <FileSearch aria-hidden />
+            <div>
+              <h2>Individua i segnali sospetti</h2>
+              <p>Analizza email, messaggi e richieste di pagamento.</p>
+            </div>
+          </div>
+          <div>
+            <ShieldCheck aria-hidden />
+            <div>
+              <h2>Un controllo per la tua azienda</h2>
+              <p>Indicazioni pratiche prima di prendere una decisione.</p>
+            </div>
+          </div>
+          <div>
+            <Users aria-hidden />
+            <div>
+              <h2>Più consapevolezza per tutti</h2>
+              <p>Strumenti semplici, pensati per le PMI.</p>
+            </div>
+          </div>
         </div>
-        <p id="msg-privacy" className="mt-3 text-sm text-muted-foreground">Prima di incollare, rimuovi dati personali, credenziali e informazioni aziendali riservate non necessarie all'analisi.</p>
-        {empty && <p role="alert" className="mt-3 rounded-lg bg-secondary px-4 py-3">Incolla prima il testo del messaggio che ti ha insospettito, poi premi "Analizza".</p>}
-        <Button
-          type="button"
-          onClick={() => run()}
-          className="mt-4 min-h-14 w-full whitespace-normal text-lg font-extrabold"
-        >
-          <ScanText aria-hidden />
-          Analizza il messaggio
-          <ArrowRight aria-hidden />
-        </Button>
-        <p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground"><LockKeyhole aria-hidden className="h-4 w-4 shrink-0" />Analisi locale · Nessun login · Nessun messaggio salvato</p>
-      </section>
-
-      <section className="mt-6" aria-labelledby="ex">
-        <h2 id="ex" className="mb-3 text-lg font-semibold text-muted-foreground">Prova uno scenario aziendale</h2>
-        <div className="grid gap-3 sm:grid-cols-3">
-          {BUSINESS_EXAMPLES.map((ex) => (
-            <Button
-              key={ex.id}
-              type="button"
-              onClick={() => { setText(ex.text); run(ex.text); }}
-              variant="outline"
-              className="h-auto min-h-14 whitespace-normal px-3 py-3 text-base font-semibold"
-            >
-              {ex.label}
+      </aside>
+      <div className="studio-workspace">
+        <div className="studio-editor">
+          <section aria-labelledby="analysis-title">
+            <h2 id="analysis-title">Controlla una comunicazione</h2>
+            <p className="studio-description">
+              Incolla il testo di un'email o di un messaggio che ti sembra sospetto. FERMO ti aiuta
+              a riconoscere i segnali e capire come agire.
+            </p>
+            <div className="studio-input-label">
+              <label htmlFor="msg">Testo della comunicazione</label>
+              <span id="msg-help">
+                {text.length.toLocaleString("it-IT")} / {MAX_LENGTH.toLocaleString("it-IT")}
+              </span>
+            </div>
+            <textarea
+              id="msg"
+              ref={inputRef}
+              value={text}
+              maxLength={MAX_LENGTH}
+              onChange={(e) => {
+                setText(e.target.value);
+                setResult(null);
+                if (empty) setEmpty(false);
+              }}
+              aria-describedby="msg-help msg-privacy"
+              aria-invalid={empty}
+              placeholder="Incolla qui la comunicazione da controllare…"
+            />
+            <div className="studio-input-footer">
+              <span>
+                <LockKeyhole aria-hidden />
+                Analisi locale · Nessun messaggio salvato
+              </span>
+              {text && (
+                <button type="button" onClick={reset}>
+                  Cancella
+                </button>
+              )}
+            </div>
+            <p id="msg-privacy" className="studio-privacy">
+              Rimuovi dati personali, credenziali e informazioni riservate non necessarie
+              all'analisi.
+            </p>
+            {empty && (
+              <p role="alert" className="studio-error">
+                Incolla prima il testo del messaggio, poi premi “Analizza”.
+              </p>
+            )}
+            <Button type="button" onClick={() => run()} className="studio-analyze">
+              <ScanText aria-hidden />
+              Analizza il messaggio
+              <ArrowRight aria-hidden />
             </Button>
-          ))}
-        </div>
-        <details className="mt-4 text-base"><summary className="cursor-pointer text-muted-foreground">Altri esempi: SMS, affitto e vendita online</summary><div className="mt-3 flex flex-wrap gap-2">{EXAMPLES.map(ex => <Button key={ex.id} variant="outline" className="min-h-12 text-base" onClick={() => { setText(ex.text); run(ex.text); }}>{ex.label}</Button>)}</div></details>
-      </section>
-
-      {result && (
-        <div ref={resultRef} tabIndex={-1} aria-live="polite" className="mt-10 space-y-5 outline-none">
-          <RiskGauge r={result} />
-          <Recommendations r={result} />
-          <CompanyProcedure key={`${result.input}-${result.score}`} r={result} />
-          <SignalList r={result} />
-          <LinkAnalysis r={result} />
-          {result.safeReply && <SafeReply text={result.safeReply} />}
-          <Breakdown r={result} />
-          <section className="animate-card-in space-y-2 rounded-2xl border border-border p-5 text-base text-muted-foreground">
-            <h2 className="font-bold text-foreground">Avvertenze</h2>
-            <p>L'indice è orientativo: si basa su segnali noti e non è una probabilità di truffa. FERMO non può garantire che un messaggio sia sicuro.</p>
-            <p>FERMO non apre i link, non verifica il mittente e non offre consulenza legale o finanziaria.</p>
           </section>
-          <Button type="button" variant="outline" onClick={reset} className="min-h-14 w-full whitespace-normal border-primary text-lg font-bold text-primary">
-            Analizza un altro messaggio
-          </Button>
+          <section className="studio-examples" aria-labelledby="ex">
+            <h2 id="ex">Prova con un esempio</h2>
+            <p>Seleziona uno scenario aziendale per vedere come funziona.</p>
+            <div className="studio-example-buttons">
+              {BUSINESS_EXAMPLES.map((ex) => (
+                <Button
+                  key={ex.id}
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setText(ex.text);
+                    run(ex.text);
+                  }}
+                >
+                  {ex.label}
+                </Button>
+              ))}
+            </div>
+            <details>
+              <summary>Altri esempi: SMS, affitto e vendita online</summary>
+              <div className="studio-example-buttons">
+                {EXAMPLES.map((ex) => (
+                  <Button
+                    key={ex.id}
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setText(ex.text);
+                      run(ex.text);
+                    }}
+                  >
+                    {ex.label}
+                  </Button>
+                ))}
+              </div>
+            </details>
+          </section>
         </div>
-      )}
-
-      <footer className="mt-12 border-t border-border pt-6 text-base text-muted-foreground">
-        <p>Il messaggio viene analizzato solo sul tuo dispositivo: non viene inviato né salvato.</p>
+        <div className="studio-results" ref={resultRef} tabIndex={-1} aria-live="polite">
+          <h2>{result ? "Il risultato dell'analisi" : "Un controllo prima di agire"}</h2>
+          {result ? (
+            <>
+              <RiskGauge r={result} />
+              <Recommendations r={result} />
+              <CompanyProcedure key={`${result.input}-${result.score}`} r={result} />
+              <SignalList r={result} />
+              <LinkAnalysis r={result} />
+              {result.safeReply && <SafeReply text={result.safeReply} />}
+              <Breakdown r={result} />
+              <section className="studio-disclaimer">
+                <h3>Da tenere presente</h3>
+                <p>
+                  L'indice è orientativo, non una probabilità di truffa. FERMO non garantisce che un
+                  messaggio sia sicuro, non apre i link e non verifica il mittente.
+                </p>
+              </section>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={reset}
+                className="w-full min-h-12 whitespace-normal"
+              >
+                Analizza un altro messaggio
+              </Button>
+            </>
+          ) : (
+            <div className="studio-empty">
+              <span className="studio-empty-icon">
+                <ShieldCheck aria-hidden />
+              </span>
+              <h3>Una decisione più consapevole, in tre passaggi.</h3>
+              <ol>
+                <li>
+                  <span>1</span>
+                  <div>
+                    <strong>Incolla la comunicazione</strong>
+                    <p>Un'email, un SMS o una richiesta di pagamento.</p>
+                  </div>
+                </li>
+                <li>
+                  <span>2</span>
+                  <div>
+                    <strong>Comprendi i segnali</strong>
+                    <p>Leggi il livello orientativo e le motivazioni.</p>
+                  </div>
+                </li>
+                <li>
+                  <span>3</span>
+                  <div>
+                    <strong>Verifica prima di procedere</strong>
+                    <p>
+                      Segui i passaggi consigliati e condividi il riepilogo con il responsabile.
+                    </p>
+                  </div>
+                </li>
+              </ol>
+              <p className="studio-empty-note">
+                Il risultato apparirà qui. Per iniziare puoi anche provare uno degli esempi.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+      <footer className="studio-footer">
+        <LockKeyhole aria-hidden />
+        <strong>Il contenuto resta sul tuo dispositivo</strong>
+        <span>Analisi locale nel browser. Nessun login e nessun messaggio salvato.</span>
       </footer>
     </main>
   );
