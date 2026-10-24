@@ -58,6 +58,10 @@ Stack: React, TypeScript, Tailwind CSS, TanStack Start, Vite, tldts e Vitest. Il
 
 ## GitHub e pubblicazione Lovable
 
+Il [pitch revisionato per l'hackathon](docs/pitch/FERMO-pitch-revisionato.pdf) è accompagnato da [fonti, limiti e istruzioni di rigenerazione](docs/pitch/README.md).
+
+L'[anteprima Lovable](https://preview--demo-fermo.lovable.app/) richiede autenticazione al controllo del 24 ottobre 2026; non è ancora un collegamento pubblico alla demo.
+
 La branch collegata è `main`. I commit inviati a GitHub si sincronizzano con il progetto Lovable. Prima di pubblicare, controllare la sincronizzazione e l'anteprima, poi usare **Publish → Publish changes** in Lovable. Il push non equivale alla pubblicazione del sito.
 
 Non usare force push e non riscrivere commit già pubblicati: la cronologia è condivisa con Lovable. Conservare `.lovable/project.json` e la configurazione di build.
