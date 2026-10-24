@@ -9,15 +9,15 @@ const IP_URL_RE = /\bhttps?:\/\/\d{1,3}(?:\.\d{1,3}){3}[^\s]*/gi;
 export function levenshtein(a: string, b: string): number {
   const dp = Array.from({ length: b.length + 1 }, (_, i) => i);
   for (let i = 1; i <= a.length; i++) {
-    let prev = dp[0];
+    let prev = dp[0]!;
     dp[0] = i;
     for (let j = 1; j <= b.length; j++) {
-      const tmp = dp[j];
-      dp[j] = Math.min(dp[j] + 1, dp[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1));
+      const tmp = dp[j]!;
+      dp[j] = Math.min(dp[j]! + 1, dp[j - 1]! + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1));
       prev = tmp;
     }
   }
-  return dp[b.length];
+  return dp[b.length]!;
 }
 
 export function extractUrls(text: string): string[] {
@@ -25,7 +25,7 @@ export function extractUrls(text: string): string[] {
   const found = new Set<string>();
   for (const m of t.matchAll(IP_URL_RE)) found.add(m[0].replace(/[.,;:!?)]+$/, ""));
   for (const m of t.matchAll(URL_RE)) {
-    const raw = m[1].replace(/[.,;:!?)]+$/, "");
+    const raw = (m[1] ?? "").replace(/[.,;:!?)]+$/, "");
     if ([...found].some((f) => f.includes(raw))) continue;
     const p = parse(raw);
     if (!p.domain || !p.isIcann) continue; // ignore things like "ad es.it" non-domains? isIcann checks real TLD

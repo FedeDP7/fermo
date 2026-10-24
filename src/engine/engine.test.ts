@@ -10,10 +10,10 @@ describe("FERMO engine", () => {
     });
   }
   it("fake tax SMS is classified as institutional", () => {
-    expect(analyze(EXAMPLES[0].text).context).toBe("ISTITUZIONALE");
+    expect(analyze(EXAMPLES[0]!.text).context).toBe("ISTITUZIONALE");
   });
   it("rental example is classified as AFFITTO", () => {
-    expect(analyze(EXAMPLES[1].text).context).toBe("AFFITTO");
+    expect(analyze(EXAMPLES[1]!.text).context).toBe("AFFITTO");
   });
   it("neutral text is BASSO", () => {
     expect(analyze("Ciao mamma, stasera arrivo per cena verso le otto.").level).toBe("BASSO");
