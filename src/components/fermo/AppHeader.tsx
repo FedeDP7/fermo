@@ -7,8 +7,9 @@ export function AppHeader() {
     <header className="studio-header">
       <Link to="/" className="studio-brand" aria-label="FERMO — pagina iniziale">
         <span className="studio-logo">
-          <img src={logo} alt="FERMO" width={1312} height={1199} />
+          <img src={logo} alt="" width={1312} height={1199} />
         </span>
+        <span>FERMO</span>
       </Link>
       <nav aria-label="Navigazione principale">
         <Link to="/" activeOptions={{ exact: true }} activeProps={{ className: "is-active" }}>

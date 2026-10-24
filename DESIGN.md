@@ -5,7 +5,7 @@ Approved direction: Studio (first visual proposal). Target: the analysis page an
 - Light canvas, white workspace, navy typography, teal primary action, Manrope.
 - Desktop: brand introduction on the left, communication editor in the center, actual analysis on the right. At intermediate widths results follow the editor; on phones the layout becomes a single column.
 - Empty state explains the workflow. No generated example score is presented as a real result.
-- Original logo: `logo/logo.png`, imported by Vite. The header displays the complete transparent logo, including its wordmark, without cropping or modifying the original image.
+- Original logo: `logo/logo.png`, imported by Vite. The header frames the shield from the transparent logo and places the text FERMO to its right. The container has no background; the source image is unchanged.
 - Dark theme remains available. Only `fermo-theme` is persisted; light is the default when no preference exists.
 - Input remains limited to 10,000 characters. Editing input clears the prior result. The engine, scoring, recommendations, and privacy-safe summaries remain unchanged.
 - Preserve labels identifying simulated company information and future SaaS features.
