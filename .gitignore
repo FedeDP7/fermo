@@ -30,3 +30,39 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local assistant tooling and working material (not part of FERMO)
+.agents/
+.codex/
+.claude/
+.impeccable/
+.taste-skill/
+.lovable/plan/
+a.png
+
+# Environment variables and credentials
+.env
+.env.*
+!.env.example
+!.env.*.example
+.dev.vars*
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+
+# Local reports, scratch work and archives
+coverage/
+playwright-report/
+test-results/
+.vite/
+tmp/
+output/
+*.tsbuildinfo
+*.zip
+
+# bun.lock is the canonical dependency lockfile
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
