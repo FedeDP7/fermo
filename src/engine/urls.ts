@@ -73,7 +73,7 @@ export function analyzeUrl(raw: string): LinkReport {
   const path = withScheme.toLowerCase();
   for (const brand of BRANDS) {
     for (const off of brand.domains) {
-      const offBase = off.split(".")[0];
+      const offBase = off.split(".")[0] ?? "";
       if (offBase.length < 4) continue;
       const mentions = sub.includes(offBase) || base.includes(offBase) || path.includes(offBase);
       const close = base !== offBase && levenshtein(base, offBase) <= 2 && base.length >= 4;
