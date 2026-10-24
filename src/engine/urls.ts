@@ -68,9 +68,9 @@ export function analyzeUrl(raw: string): LinkReport {
     score += 25;
   }
 
-  const base = deLeet(p.domainWithoutSuffix ?? "");
-  const sub = p.subdomain ?? "";
-  const path = withScheme.toLowerCase();
+  const base = deLeet(p.domainWithoutSuffix ?? "").replace(/-/g, "");
+  const sub = (p.subdomain ?? "").replace(/-/g, "");
+  const path = withScheme.toLowerCase().replace(/-/g, "");
   for (const brand of BRANDS) {
     for (const off of brand.domains) {
       const offBase = off.split(".")[0] ?? "";

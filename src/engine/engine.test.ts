@@ -35,3 +35,9 @@ describe("FERMO engine", () => {
     expect(s).toBeLessThanOrEqual(100);
   });
 });
+
+describe("hyphenated brand domains", () => {
+  it("agenzia-entrate on a non-official site is suspicious", () => {
+    expect(analyzeUrl("https://agenzia-entrate-rimborsi.top").verdict).toBe("sospetto");
+  });
+});
