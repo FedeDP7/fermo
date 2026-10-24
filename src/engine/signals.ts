@@ -1,6 +1,6 @@
 import { BRANDS, type Brand } from "./config/brands";
 import { LINK_DECEPTION_IDS, TEXT_WEIGHTS } from "./config/rules";
-import { clauses, deLeetWords, negatedBefore } from "./normalize";
+import { clauseSpans, deLeetWords, negatedBefore, type Clause } from "./normalize";
 import type { LinkReport, Signal } from "./types";
 
 type TextId = keyof typeof TEXT_WEIGHTS;
@@ -46,19 +46,31 @@ const ACTION_RE = new RegExp(ACTION);
 const REQ_VERB = String.raw`\b(mandami|mandameli|mandamelo|inviami|invia|inviare|dammi|dimmi|comunicami|comunica|comunicare|fornisci(mi)?|fornire|inserisci|digita|conferma|confermare|scrivimi|leggimi|girami|passami|dettami|ripetimi|mi serve|ho bisogno del|devi (inviare|comunicare|dare|fornire|inserire|confermare))\b`;
 const CRED_TARGET = String.raw`\b(otp|pin|password|cvv|cvc|credenziali|codic[ei] (otp|di verifica|di sicurezza|ricevut[oi]|sms|di accesso|che ti (e )?arrivat[oi]|a \d cifre)|dati della (tua )?carta|numero della (tua )?carta)\b`;
 
-/** True if some clause matches and the match is not preceded by a negation in that clause. */
-function inClause(cls: string[], re: RegExp, { negatable = true } = {}): boolean {
-  return cls.some((c) => {
-    const m = re.exec(c);
-    return !!m && (!negatable || !negatedBefore(c, m.index + 1));
-  });
+export interface Span {
+  start: number;
+  end: number;
 }
 
-function both(cls: string[], a: RegExp, b: RegExp): boolean {
-  return cls.some((c) => {
+/** First clause match not preceded by a negation; returns its absolute span in `norm`. */
+function inClause(cls: Clause[], re: RegExp, { negatable = true } = {}): Span | null {
+  for (const { text: c, start } of cls) {
+    const m = re.exec(c);
+    if (m && (!negatable || !negatedBefore(c, m.index + 1))) return { start: start + m.index, end: start + m.index + m[0].length };
+  }
+  return null;
+}
+
+function both(cls: Clause[], a: RegExp, b: RegExp): Span | null {
+  for (const { text: c, start } of cls) {
     const ma = a.exec(c);
-    return !!ma && b.test(c) && !negatedBefore(c, ma.index + 1);
-  });
+    if (ma && b.test(c) && !negatedBefore(c, ma.index + 1)) return { start: start + ma.index, end: start + ma.index + ma[0].length };
+  }
+  return null;
+}
+
+function hit(re: RegExp, norm: string): Span | null {
+  const m = re.exec(norm);
+  return m ? { start: m.index, end: m.index + m[0].length } : null;
 }
 
 export interface BrandDetection {
@@ -95,37 +107,42 @@ export function detectBrands(norm: string, urls: string[]): BrandDetection {
 
 const PROPERTY = /\b(affitt\w*|appartamento|casa|stanza|camera|immobile|chiavi|(mono|bi|tri|quadri)locale|locazione)\b/;
 
-export function detectTextSignals(norm: string): TextId[] {
-  const cls = clauses(norm);
+/** Detects text rules. `spans` holds the normalized-text position of the triggering excerpt, when tracked. */
+export function detectTextSignals(norm: string, spans: Map<string, Span> = new Map()): TextId[] {
+  const cls = clauseSpans(norm);
   const ids: TextId[] = [];
-  const on = (id: TextId, cond: boolean) => cond && ids.push(id);
+  const on = (id: TextId, cond: Span | boolean | null) => {
+    if (!cond) return;
+    ids.push(id);
+    if (typeof cond === "object") spans.set(id, cond);
+  };
 
   on("credenziali", inClause(cls, new RegExp(`${REQ_VERB}[^.]{0,40}?${CRED_TARGET}`)));
 
   const newNumber = /\b(nuovo numero|numero nuovo|cambiato numero|ho perso il telefono|telefono (rotto|caduto|guasto)|salva (questo|il mio nuovo) numero|questo e il mio (nuovo )?numero)\b/;
   const moneyAsk = /\b(bonifico|soldi|pagare|pagamento|prestito|prestarmi|anticipar\w*|ricarica|\d+ ?(euro|eur|€))\b/;
-  on("finto_parente", newNumber.test(norm) && moneyAsk.test(norm) && /\b(puoi|potresti|mi (fai|serve|servono)|devi|fammi|mandami|inviami|ho bisogno)\b/.test(norm));
+  on("finto_parente", moneyAsk.test(norm) && /\b(puoi|potresti|mi (fai|serve|servono)|devi|fammi|mandami|inviami|ho bisogno)\b/.test(norm) && hit(newNumber, norm));
 
   const property = PROPERTY.test(norm);
   on("caparra", property && both(cls, /\b(caparra|anticipo|acconto|deposito( cauzionale)?|prima mensilita)\b/, /\b(invia\w*|manda\w*|versa\w*|bonifico|pag\w+|bloccare|serve|richiedo|devi)\b/));
-  on("no_visita", property && /\b(non posso (organizzare|fare|mostrar\w*|far(ti)? vedere|incontrar\w*)|non (e|sara) possibile (visitar\w*|vedere)|niente visite|senza (visita|vederl\w)|sono all'estero|vivo all'estero|lavoro all'estero|(ti |vi )?spedisco le chiavi|chiavi (con|via|tramite|per) (il )?corriere)/.test(norm));
+  on("no_visita", property && hit(/\b(non posso (organizzare|fare|mostrar\w*|far(ti)? vedere|incontrar\w*)|non (e|sara) possibile (visitar\w*|vedere)|niente visite|senza (visita|vederl\w)|sono all'estero|vivo all'estero|lavoro all'estero|(ti |vi )?spedisco le chiavi|chiavi (con|via|tramite|per) (il )?corriere)/, norm));
 
   on("gift_card", both(cls, /\b(gift ?card|carte? regalo|buon[oi] (amazon|regalo)|steam card|google play card|itunes)\b/, /\b(pag\w+|compra\w*|acquista\w*|manda\w*|invia\w*|codic[ei]|dammi)\b/));
   on("paypal_amici", inClause(cls, /\b(amici e (familiari|parenti)|friends (and|&) family|amici e famiglia)\b/));
   on("metodo_irrecuperabile", both(cls, /\b(ricarica\w* (sulla |la |una )?(mia |sua )?(postepay|carta prepagata)|western union|moneygram|bitcoin|criptovalut\w+|crypto|usdt)\b/, /\b(pag\w+|invia\w*|manda\w*|fai|fare|ricarica\w*|versa\w*|serve)\b/));
-  on("pagamento_eccesso", /\b(ti ho (pagato|inviato|mandato|versato) (di )?(piu|troppo)|pagato in eccesso|per errore (ti )?ho (pagato|inviato|mandato)|(restituisci|rimanda|rimborsami|ridammi|rendimi)(mi)? (la differenza|il resto|l'eccedenza))/.test(norm));
+  on("pagamento_eccesso", hit(/\b(ti ho (pagato|inviato|mandato|versato) (di )?(piu|troppo)|pagato in eccesso|per errore (ti )?ho (pagato|inviato|mandato)|(restituisci|rimanda|rimborsami|ridammi|rendimi)(mi)? (la differenza|il resto|l'eccedenza))/, norm));
 
   on("documenti", inClause(cls, /\b(inviami|mandami|manda|invia|mi serve|fammi avere|serve)\b[^.]{0,40}\b(documento|carta d'identita|carta di identita|patente|codice fiscale|passaporto|selfie|busta paga|foto (del|della) (documento|carta))\b/));
-  on("fuori_piattaforma", inClause(cls, /\b(continuiamo|passiamo|scrivimi|contattami|sentiamoci|possiamo (continuare|sentirci|parlare)|parliamo|spostiamoci|aggiungimi)\b[^.]{0,25}\b(whatsapp|telegram|e-?mail|signal|messenger)\b/) || /\b(whatsapp|telegram) al (numero )?\+?\d/.test(norm));
-  on("segretezza", /\b(non dirlo a nessuno|non dire (niente|nulla) a nessuno|tienilo (segreto|per te)|(resti|rimanga) tra noi|non avvisare (la banca|nessuno)|non parlarne con nessuno|non dirlo (alla banca|a mamma|a papa))\b/.test(norm));
+  on("fuori_piattaforma", inClause(cls, /\b(continuiamo|passiamo|scrivimi|contattami|sentiamoci|possiamo (continuare|sentirci|parlare)|parliamo|spostiamoci|aggiungimi)\b[^.]{0,25}\b(whatsapp|telegram|e-?mail|signal|messenger)\b/) || hit(/\b(whatsapp|telegram) al (numero )?\+?\d/, norm));
+  on("segretezza", hit(/\b(non dirlo a nessuno|non dire (niente|nulla) a nessuno|tienilo (segreto|per te)|(resti|rimanga) tra noi|non avvisare (la banca|nessuno)|non parlarne con nessuno|non dirlo (alla banca|a mamma|a papa))\b/, norm));
 
   const threat = /\b(blocc(ato|ata|o|heremo|hiamo|era|herà)|sospes[oa]|sospensione|sospenderemo|sanzion\w+|pignorament\w+|chiusura del conto|disattiv\w+|denuncia|azioni legali|multa)\b/;
-  on("minaccia", inClause(cls, threat) && ACTION_RE.test(norm));
+  on("minaccia", ACTION_RE.test(norm) && inClause(cls, threat));
   const urgent = /\b(entro (\d+|un'?|una|poche|oggi|domani)\s?(ore|ora|minuti|giorni|giorno)?|subito|immediatamente|al piu presto|urgent[ei]|urgentemente|oggi stesso|ultimo avviso|scade (oggi|domani)|senza ritardo)/;
-  on("urgenza", cls.some((c) => { const m = urgent.exec(c); return !!m && ACTION_RE.test(c) && !/\bnon (c'e|ce) fretta|non ho fretta\b/.test(c) && !negatedBefore(c, m.index + 1); }));
+  on("urgenza", cls.reduce<Span | null>((found, { text: c, start }) => { if (found) return found; const m = urgent.exec(c); return m && ACTION_RE.test(c) && !/\bnon (c'e|ce) fretta|non ho fretta\b/.test(c) && !negatedBefore(c, m.index + 1) ? { start: start + m.index, end: start + m.index + m[0].length } : null; }, null));
 
-  on("invito_comunicazione", inClause(cls, /\b(controlla|visualizza|consulta|apri|leggi|scarica|verifica)\b[^.]{0,40}\b(comunicazion\w+|messaggio|documento|notifica|sistema|dati aggiornati|avviso|pratica|fattura)\b/) || /\be disponibile una (nuova )?(comunicazione|notifica)\b/.test(norm));
-  on("denaro_inatteso", inClause(cls, /\b(rimborso|hai vinto|premio|accredito|a tuo favore|hai diritto|bonus di|vincita)\b/) && ACTION_RE.test(norm));
+  on("invito_comunicazione", inClause(cls, /\b(controlla|visualizza|consulta|apri|leggi|scarica|verifica)\b[^.]{0,40}\b(comunicazion\w+|messaggio|documento|notifica|sistema|dati aggiornati|avviso|pratica|fattura)\b/) || hit(/\be disponibile una (nuova )?(comunicazione|notifica)\b/, norm));
+  on("denaro_inatteso", ACTION_RE.test(norm) && inClause(cls, /\b(rimborso|hai vinto|premio|accredito|a tuo favore|hai diritto|bonus di|vincita)\b/));
 
   return ids;
 }
