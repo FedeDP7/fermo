@@ -1,11 +1,12 @@
 import type { Context } from "./types";
 
 const KEYWORDS: Record<Exclude<Context, "GENERICO">, RegExp[]> = {
-  ISTITUZIONALE: [/agenzia (delle )?entrate/, /\binps\b/, /\bfisco\b/, /\bf24\b/, /\bspid\b/, /rimborso fiscale/, /\bcomune\b/, /\bministero\b/, /cartella esattoriale/],
-  BANCA_PAGAMENTI: [/\bbanca\b/, /\bconto\b/, /\bcarta\b/, /\bhome banking\b/, /\bpostepay\b/, /\bbonifico\b/, /\baddebito\b/, /\btransazione\b/],
-  CONSEGNA: [/\bpacco\b/, /\bspedizione\b/, /\bcorriere\b/, /\bconsegna\b/, /\bgiacenza\b/, /\btracking\b/],
-  AFFITTO: [/\baffitt/, /\bappartamento\b/, /\bmonolocale\b/, /\bbilocale\b/, /\bstanza\b/, /\bcanone\b/, /\bcaparra\b/, /\bproprietari[oa]\b/, /\bcontratto di locazione\b/, /\bcasa\b/],
-  COMPRAVENDITA: [/\bvendo\b/, /\bacquist/, /\bannuncio\b/, /\bsubito\b/, /\bmarketplace\b/, /\bvinted\b/, /\bpaypal\b/, /\bspedisco\b/, /\bcompra/, /\boggetto\b/, /\biphone\b/],
+  ISTITUZIONALE: [/agenzia (delle )?entrate/, /\ba+g\.? ?entrate\b/, /\binps\b/, /\bfisco\b/, /\bfiscale\b/, /\bf24\b/, /\bspid\b/, /\bministero\b/, /cartella esattoriale/],
+  BANCA_PAGAMENTI: [/\bbanca\b/, /\bconto corrente\b/, /\bhome banking\b/, /\bpostepay\b/, /\baddebito\b/, /\btransazione\b/, /\bcarta di credito\b/],
+  CONSEGNA: [/\bpacco\b/, /\bcorriere\b/, /\bconsegna\b/, /\bgiacenza\b/, /\btracking\b/],
+  AFFITTO: [/\baffitt/, /\bappartamento\b/, /\b(mono|bi|tri|quadri)locale\b/, /\bstanza\b/, /\bcanone\b/, /\bcaparra\b/, /\bvisit[ae]\b/, /\bchiavi\b/],
+  COMPRAVENDITA: [/\bvendo\b/, /\binteressat[oa]\b/, /\bannuncio\b/, /\bsubito\.it\b/, /\bvinted\b/, /\bmarketplace\b/, /\boggetto\b/, /\bcommission[ei]\b/, /\bspedisco\b/],
+  FAMIGLIA: [/\bmamma\b/, /\bpapa\b/, /\bnuovo numero\b/, /\bcambiato numero\b/, /\bnonn[oa]\b/, /\bfigli[oa]\b/],
 };
 
 export const CONTEXT_LABELS: Record<Context, string> = {
@@ -14,6 +15,7 @@ export const CONTEXT_LABELS: Record<Context, string> = {
   CONSEGNA: "Consegna pacchi",
   AFFITTO: "Affitto casa",
   COMPRAVENDITA: "Compravendita online",
+  FAMIGLIA: "Messaggio da un familiare",
   GENERICO: "Messaggio generico",
 };
 

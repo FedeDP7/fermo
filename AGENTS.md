@@ -9,4 +9,4 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Scam analysis lives in pure, React-free modules under src/engine (config/rules and config/brands hold all weights and domains); UI only calls analyze(). Why: deterministic, testable, offline by design.
+- Scam analysis lives in pure, React-free modules under src/engine (config/rules and config/brands hold all weights and domains); UI only calls analyzeMessage(); scoring is group-capped and bonuses come only from active signals. Why: deterministic, testable, offline by design.

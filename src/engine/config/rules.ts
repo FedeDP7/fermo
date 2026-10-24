@@ -1,113 +1,72 @@
-import type { Context } from "../types";
+import type { Group } from "../types";
 
-export interface Rule {
-  id: string;
-  title: string;
-  explanation: string;
-  patterns: RegExp[]; // applied to normalized text
-  weight: number;
-  boost?: Partial<Record<Context, number>>; // multiplier per context
-}
+export const THRESHOLDS = { medio: 25, alto: 60 };
 
-export const THRESHOLDS = { medio: 30, alto: 65 };
+export const GROUP_CAPS: Record<Group, number> = {
+  LINK: 55,
+  CREDENZIALI: 65,
+  PAGAMENTI: 40,
+  IDENTITA: 50,
+  CONTESTO: 35,
+  PRESSIONE: 18,
+  GENERICI: 10,
+};
 
-export const RULES: Rule[] = [
-  {
-    id: "urgenza",
-    title: "Ti mette fretta",
-    explanation: "Il messaggio impone tempi strettissimi. La fretta serve a non farti ragionare.",
-    patterns: [/\b(urgente|immediatamente|subito|entro (24|48) ?ore|entro oggi|ultimo avviso|ultim[oa] possibilita|scade oggi|al piu presto)\b/],
-    weight: 15,
-  },
-  {
-    id: "minaccia",
-    title: "Minaccia conseguenze",
-    explanation: "Parla di blocchi, sanzioni o sospensioni per spaventarti.",
-    patterns: [/\b(sospes[oa]|sospensione|bloccat[oa]|blocco|sanzion[ei]|pignoramento|multa|verra (chiuso|disattivato)|disattivazione|azioni legali)\b/],
-    weight: 15,
-  },
-  {
-    id: "dati_sensibili",
-    title: "Chiede dati riservati",
-    explanation: "Nessun ente o banca chiede codici, PIN, password o dati della carta via messaggio.",
-    patterns: [/\b(otp|pin|password|codice (di )?(sicurezza|verifica|conferma)|cvv|numero (della )?carta|credenziali|dati (della carta|bancari|personali))\b/],
-    weight: 25,
-    boost: { BANCA_PAGAMENTI: 1.2, ISTITUZIONALE: 1.2 },
-  },
-  {
-    id: "rimborso",
-    title: "Promette un rimborso o un premio",
-    explanation: "Rimborsi o vincite inattese sono un'esca molto comune.",
-    patterns: [/\b(rimborso|hai diritto|credito d.imposta a tuo favore|hai vinto|premio|bonus di|accredito in attesa)\b/],
-    weight: 15,
-    boost: { ISTITUZIONALE: 1.4 },
-  },
-  {
-    id: "clicca_link",
-    title: "Ti chiede di cliccare un link",
-    explanation: "Spinge ad aprire un link per 'verificare' o 'confermare'. Meglio andare sul sito ufficiale digitando tu l'indirizzo.",
-    patterns: [/\b(clicca|accedi|verifica|conferma|aggiorna) (qui|al link|il link|sul link|subito|i tuoi dati|l.account)\b/, /\b(link|collegamento) (qui )?sotto\b/],
-    weight: 10,
-  },
-  {
-    id: "anticipo",
-    title: "Chiede soldi in anticipo",
-    explanation: "Pagare caparra o anticipo prima di vedere casa o merce è il cuore di molte truffe.",
-    patterns: [/\b(caparra|anticipo|deposito cauzionale|acconto|prima mensilita|pagamento anticipato|bloccare (l.appartamento|la casa|la stanza))\b/],
-    weight: 20,
-    boost: { AFFITTO: 1.5, COMPRAVENDITA: 1.3 },
-  },
-  {
-    id: "pagamento_irrevocabile",
-    title: "Metodo di pagamento non tutelato",
-    explanation: "Bonifico istantaneo, ricariche, gift card o criptovalute sono quasi impossibili da recuperare.",
-    patterns: [/\b(western union|moneygram|ricarica (postepay|la mia postepay)|gift ?card|carta regalo|bitcoin|crypto|criptovalut[ae]|usdt|bonifico istantaneo)\b/],
-    weight: 25,
-  },
-  {
-    id: "paypal_amici",
-    title: "PayPal 'amici e familiari'",
-    explanation: "Con 'amici e familiari' non hai la protezione acquisti: se la merce non arriva perdi i soldi.",
-    patterns: [/\b(amici e (familiari|parenti)|friends (and|&) family|amici e famiglia)\b/],
-    weight: 35,
-    boost: { COMPRAVENDITA: 1.3 },
-  },
-  {
-    id: "cambio_canale",
-    title: "Vuole spostarsi su un'altra chat",
-    explanation: "Spostare la conversazione fuori dalla piattaforma elimina le tutele del sito.",
-    patterns: [/\b(scrivimi su|contattami su|continuiamo su|passiamo su|sentiamoci su) (whatsapp|telegram|email|mail)\b/, /\b(whatsapp|telegram) al (numero )?\+?\d/],
-    weight: 15,
-    boost: { COMPRAVENDITA: 1.3, AFFITTO: 1.3 },
-  },
-  {
-    id: "estero",
-    title: "Controparte all'estero o non disponibile",
-    explanation: "Il proprietario o venditore 'all'estero' che non può incontrarti è uno schema classico.",
-    patterns: [/\b(sono all.estero|vivo all.estero|lavoro all.estero|mi trovo (a|in) (londra|parigi|germania|inghilterra|spagna|francia)|trasferit[oa] per lavoro|non posso (mostrar|far vedere|incontrar))/],
-    weight: 20,
-    boost: { AFFITTO: 1.4 },
-  },
-  {
-    id: "corriere_venditore",
-    title: "Spedizione 'gestita' da loro",
-    explanation: "Corrieri o agenzie proposti dalla controparte che chiedono pagamenti o dati sono spesso falsi.",
-    patterns: [/\b(il mio corriere|corriere di fiducia|ritiro tramite corriere|agenzia (di )?spedizion[ei] (mia|di fiducia)|airbnb (ti|vi) mandera|chiavi (via|per) corriere|spedisco le chiavi)\b/],
-    weight: 20,
-  },
-  {
-    id: "prezzo_basso",
-    title: "Offerta troppo conveniente",
-    explanation: "Un prezzo molto sotto mercato serve ad attirarti e farti decidere in fretta.",
-    patterns: [/\b(prezzo (stracciato|bassissimo|imperdibile)|occasione unica|affare|sotto costo|regalo|svendo)\b/],
-    weight: 10,
-  },
-  {
-    id: "spese_consegna",
-    title: "Piccolo pagamento per sbloccare un pacco",
-    explanation: "Chiedere pochi euro per 'sbloccare' una consegna è una tecnica per rubare i dati della carta.",
-    patterns: [/\b(pacco|spedizione|consegna) .{0,40}(in giacenza|sospes[ao]|bloccat[oa]|non consegnat[oa])\b/, /\b(paga|pagare|versare) .{0,20}\d+[,.]\d{2} ?(eur|€)/],
-    weight: 20,
-    boost: { CONSEGNA: 1.3 },
-  },
+export const GROUP_LABELS: Record<Group, string> = {
+  LINK: "Link",
+  CREDENZIALI: "Credenziali",
+  PAGAMENTI: "Pagamenti",
+  IDENTITA: "Identità",
+  CONTESTO: "Contesto",
+  PRESSIONE: "Pressione",
+  GENERICI: "Indizi deboli",
+};
+
+/** Text rule weights. Each id belongs to exactly one group. */
+export const TEXT_WEIGHTS = {
+  credenziali: { group: "CREDENZIALI", weight: 65 },
+  finto_parente: { group: "IDENTITA", weight: 48 },
+  caparra: { group: "PAGAMENTI", weight: 35 },
+  gift_card: { group: "PAGAMENTI", weight: 35 },
+  paypal_amici: { group: "PAGAMENTI", weight: 28 },
+  metodo_irrecuperabile: { group: "PAGAMENTI", weight: 30 },
+  pagamento_eccesso: { group: "PAGAMENTI", weight: 30 },
+  no_visita: { group: "CONTESTO", weight: 25 },
+  documenti: { group: "CONTESTO", weight: 20 },
+  fuori_piattaforma: { group: "CONTESTO", weight: 18 },
+  segretezza: { group: "CONTESTO", weight: 18 },
+  minaccia: { group: "PRESSIONE", weight: 18 },
+  urgenza: { group: "PRESSIONE", weight: 12 },
+  impersonazione_debole: { group: "GENERICI", weight: 12 },
+  invito_comunicazione: { group: "GENERICI", weight: 8 },
+  denaro_inatteso: { group: "GENERICI", weight: 20 },
+} as const satisfies Record<string, { group: Group; weight: number }>;
+
+/** Link indicator weights (all in group LINK). */
+export const LINK_WEIGHTS = {
+  brand_discordante: 45,
+  imitazione_hostname: 40,
+  typosquatting: 35,
+  omoglifi: 25,
+  shortener: 28,
+  ip_sensibile: 20,
+  ip: 5,
+  chiocciola: 20,
+  offuscato: 15,
+  http: 3,
+  tld_insolito: 4,
+  trattini: 4,
+  sottodominio_gratuito: 6,
+  punycode: 5,
+};
+
+/** Same deception expressed in different ways: only the strongest counts. */
+export const LINK_DECEPTION_IDS = ["brand_discordante", "imitazione_hostname", "typosquatting", "omoglifi"];
+
+export const BONUSES = [
+  { id: "ente_dominio", label: "Ente impersonato + dominio discordante", points: 15, requires: ["brand_discordante"] },
+  { id: "cred_link", label: "Credenziali richieste + link sospetto", points: 12, requires: ["credenziali", "@link_sospetto"] },
+  { id: "caparra_visita", label: "Caparra + impossibilità di verifica", points: 15, requires: ["caparra", "no_visita"] },
+  { id: "fuori_metodo", label: "Fuori piattaforma + metodo rischioso", points: 8, requires: ["fuori_piattaforma", "@metodo_rischioso"] },
+  { id: "parente_urgenza", label: "Finto parente + richiesta urgente", points: 10, requires: ["finto_parente", "urgenza"] },
 ];
