@@ -34,6 +34,7 @@ describe("B2B rules and privacy", () => {
   it("corporate service imitation differs from official domains", () => {
     const r = analyzeMessage(BUSINESS_EXAMPLES.find(e => e.id === "account")?.text ?? "");
     expect(r.situation).toBe("PHISHING_AZIENDALE");
+    expect(r.signals.map(s => s.id)).toEqual(expect.arrayContaining(["credenziali", "minaccia", "urgenza", "brand_discordante"]));
     expect(r.links[0]?.domain).toBe("example.com");
     expect(r.links[0]?.mismatch).toBe(true);
     expect(analyzeMessage("Microsoft 365: accedi su https://login.microsoftonline.com").links[0]?.verdict).toBe("dominio noto");
@@ -46,6 +47,9 @@ describe("B2B rules and privacy", () => {
   });
   it("protective IBAN advice does not create a change signal", () => {
     expect(analyzeMessage("Non cambiare IBAN senza verificare.").signals.map(s => s.id)).not.toContain("cambio_iban");
+  });
+  it("protective credential advice remains unflagged after purpose wording", () => {
+    expect(analyzeMessage("Per evitare una frode, non comunicare la password.").signals.map(s => s.id)).not.toContain("credenziali");
   });
   it("manager summary excludes input, excerpts, IBAN, credentials and addresses", () => {
     const input = "Abbiamo cambiato IBAN. IT60X0542811101000000123456. Cliente Mario Rossi mario@azienda.it. Mandami la password segreto123 su https://evil.example.com/private";

@@ -113,7 +113,12 @@ const PROPERTY = /\b(affitt\w*|appartamento|casa|stanza|camera|immobile|chiavi|(
 
 /** Detects text rules. `spans` holds the normalized-text position of the triggering excerpt, when tracked. */
 export function detectTextSignals(norm: string, spans: Map<string, Span> = new Map()): TextId[] {
-  const cls = clauseSpans(norm);
+  // "Per evitare un'interruzione, conferma ..." is an action request, not
+  // protective advice. Keep the offset of the request after its purpose clause.
+  const cls = clauseSpans(norm).map((clause) => {
+    const purpose = /^per evitare\b[^,]{0,100},\s*/.exec(clause.text);
+    return purpose ? { text: clause.text.slice(purpose[0].length), start: clause.start + purpose[0].length } : clause;
+  });
   const ids: TextId[] = [];
   const on = (id: TextId, cond: Span | boolean | null) => {
     if (!cond) return;
@@ -149,7 +154,7 @@ export function detectTextSignals(norm: string, spans: Map<string, Span> = new M
 
   const threat = /\b(blocc(ato|ata|o|heremo|hiamo|era|herà)|sospes[oa]|sospensione|sospenderemo|sanzion\w+|pignorament\w+|chiusura del conto|disattiv\w+|denuncia|azioni legali|multa)\b/;
   on("minaccia", ACTION_RE.test(norm) && inClause(cls, threat));
-  const urgent = /\b(entro (\d+|un'?|una|poche|oggi|domani)\s?(ore|ora|minuti|giorni|giorno)?|subito|immediatamente|al piu presto|urgent[ei]|urgentemente|oggi stesso|ultimo avviso|scade (oggi|domani)|senza ritardo)/;
+  const urgent = /\b(entro (\d+|un'?|una|due|tre|poche|oggi|domani)\s?(ore|ora|minuti|giorni|giorno)?|subito|immediatamente|al piu presto|urgent[ei]|urgentemente|oggi stesso|ultimo avviso|scade (oggi|domani)|senza ritardo)/;
   on("urgenza", cls.reduce<Span | null>((found, { text: c, start }) => { if (found) return found; const m = urgent.exec(c); return m && ACTION_RE.test(c) && !/\bnon (c'e|ce) fretta|non ho fretta\b/.test(c) && !negatedBefore(c, m.index + 1) ? { start: start + m.index, end: start + m.index + m[0].length } : null; }, null));
 
   on("invito_comunicazione", inClause(cls, /\b(controlla|visualizza|consulta|apri|leggi|scarica|verifica)\b[^.]{0,40}\b(comunicazion\w+|messaggio|documento|notifica|sistema|dati aggiornati|avviso|pratica|fattura)\b/) || hit(/\be disponibile una (nuova )?(comunicazione|notifica)\b/, norm));
