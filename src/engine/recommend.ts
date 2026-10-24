@@ -3,9 +3,13 @@ import type { Context, Level, Signal, Situation } from "./types";
 const PHISHING_IDS = ["brand_discordante", "imitazione_hostname", "typosquatting", "omoglifi"];
 const PAYMENT_IDS = ["gift_card", "metodo_irrecuperabile", "pagamento_eccesso", "paypal_amici"];
 
-export function detectSituation(signals: Signal[], context: Context): Situation {
+export function detectSituation(signals: Signal[], context: Context, corporateBrand = false): Situation {
   const ids = new Set(signals.map((s) => s.id));
   if (!signals.length) return "NESSUNA";
+  if (ids.has("cambio_iban")) return "CAMBIO_IBAN";
+  if (ids.has("dirigente_pagamento")) return "CEO_FRAUD";
+  if ((corporateBrand || context === "AZIENDALE") && (ids.has("credenziali") || PHISHING_IDS.some((i) => ids.has(i)))) return "PHISHING_AZIENDALE";
+  if (context === "AZIENDALE" && (ids.has("beneficiario_cambiato") || PAYMENT_IDS.some((i) => ids.has(i)) || ids.has("ostacola_verifica") || ids.has("minaccia"))) return "FATTURA";
   if (ids.has("credenziali")) return "CREDENZIALI";
   if (PHISHING_IDS.some((i) => ids.has(i))) return "PHISHING";
   if (ids.has("finto_parente")) return "FINTO_PARENTE";
@@ -17,6 +21,26 @@ export function detectSituation(signals: Signal[], context: Context): Situation 
 }
 
 const RECS: Record<Situation, string[]> = {
+  CAMBIO_IBAN: [
+    "Sospendi temporaneamente l'autorizzazione al pagamento.",
+    "Contatta il fornitore tramite un recapito già verificato e indipendente dalla comunicazione ricevuta.",
+    "Segui la procedura interna di approvazione e verifica delle coordinate.",
+  ],
+  CEO_FRAUD: [
+    "Non effettuare il trasferimento richiesto prima della verifica.",
+    "Verifica l'identità del richiedente attraverso un canale aziendale conosciuto.",
+    "Coinvolgi il responsabile amministrativo o il referente della sicurezza.",
+  ],
+  PHISHING_AZIENDALE: [
+    "Non aprire il link sospetto e non inserire credenziali.",
+    "Accedi al servizio attraverso l'applicazione o il sito aziendale noto.",
+    "Se hai già inserito credenziali, contatta immediatamente il referente IT e avvia le procedure di protezione dell'account.",
+  ],
+  FATTURA: [
+    "Verifica la corrispondenza con ordine, contratto o precedente documentazione.",
+    "Controlla autonomamente beneficiario e coordinate.",
+    "Richiedi conferma secondo le procedure aziendali prima di autorizzare il pagamento.",
+  ],
   CREDENZIALI: [
     "Non condividere OTP, PIN, password o CVV con nessuno, nemmeno con chi dice di essere la banca.",
     "Contatta il servizio usando il numero ufficiale (es. sul retro della carta o nell'app).",
@@ -61,7 +85,7 @@ const REPLIES: Partial<Record<Situation, string>> = {
 
 export function buildRecommendations(situation: Situation, level: Level): { recommendations: string[]; safeReply: string | null } {
   const recs = [...RECS[situation]];
-  if (level === "BASSO" && situation !== "NESSUNA") recs[2] = RECS.NESSUNA[2]!;
+  if (level === "BASSO" && !["NESSUNA", "CAMBIO_IBAN", "CEO_FRAUD", "PHISHING_AZIENDALE", "FATTURA"].includes(situation)) recs[2] = RECS.NESSUNA[2] ?? "In caso di dubbio, chiedi un parere.";
   // No reply for phishing / impersonation: never write back to the sender.
   const safeReply = level !== "BASSO" ? (REPLIES[situation] ?? null) : null;
   return { recommendations: recs, safeReply };
