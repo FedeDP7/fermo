@@ -1,4 +1,5 @@
 export type Context =
+  | "AZIENDALE"
   | "ISTITUZIONALE"
   | "BANCA_PAGAMENTI"
   | "CONSEGNA"
@@ -73,7 +74,7 @@ export interface Breakdown {
   total: number;
 }
 
-export type Situation = "CREDENZIALI" | "PHISHING" | "FINTO_PARENTE" | "AFFITTO" | "MARKETPLACE" | "PAGAMENTO" | "NESSUNA";
+export type Situation = "CAMBIO_IBAN" | "CEO_FRAUD" | "PHISHING_AZIENDALE" | "FATTURA" | "CREDENZIALI" | "PHISHING" | "FINTO_PARENTE" | "AFFITTO" | "MARKETPLACE" | "PAGAMENTO" | "NESSUNA";
 
 export interface AnalysisResult {
   /** The analysed input, unchanged (used for highlighting). */

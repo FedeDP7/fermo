@@ -24,6 +24,10 @@ export const GROUP_LABELS: Record<Group, string> = {
 
 /** Text rule weights. Each id belongs to exactly one group. */
 export const TEXT_WEIGHTS = {
+  cambio_iban: { group: "PAGAMENTI", weight: 25 },
+  dirigente_pagamento: { group: "IDENTITA", weight: 35 },
+  ostacola_verifica: { group: "CONTESTO", weight: 25 },
+  beneficiario_cambiato: { group: "PAGAMENTI", weight: 20 },
   credenziali: { group: "CREDENZIALI", weight: 65 },
   finto_parente: { group: "IDENTITA", weight: 48 },
   caparra: { group: "PAGAMENTI", weight: 35 },
@@ -64,6 +68,7 @@ export const LINK_WEIGHTS = {
 export const LINK_DECEPTION_IDS = ["brand_discordante", "imitazione_hostname", "typosquatting", "omoglifi"];
 
 export const BONUSES = [
+  { id: "iban_verifica", label: "Cambio IBAN + verifiche scoraggiate", points: 10, requires: ["cambio_iban", "ostacola_verifica"] },
   { id: "ente_dominio", label: "Ente impersonato + dominio discordante", points: 15, requires: ["brand_discordante"] },
   { id: "cred_link", label: "Credenziali richieste + link sospetto", points: 12, requires: ["credenziali", "@link_sospetto"] },
   { id: "caparra_visita", label: "Caparra + impossibilità di verifica", points: 15, requires: ["caparra", "no_visita"] },
