@@ -1,3 +1,4 @@
+import { signalCopy } from "@/i18n/report";
 import { useI18n, usePageLanguage } from "@/i18n";
 import { createFileRoute } from "@tanstack/react-router";
 import { useRef, useState } from "react";
@@ -48,20 +49,30 @@ function Index() {
   const [text, setText] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [empty, setEmpty] = useState(false);
+  const [isExample, setIsExample] = useState(false);
+  const summaryRef = useRef<HTMLDivElement>(null);
+  const reportButtonRef = useRef<HTMLButtonElement>(null);
   const [reportOpen, setReportOpen] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const reportTitleRef = useRef<HTMLHeadingElement>(null);
 
-  const run = (t = text) => {
-    if (!t.trim()) {
+  const run = (input = text, example = false) => {
+    if (!input.trim()) {
       setEmpty(true);
       setResult(null);
       inputRef.current?.focus();
       return;
     }
     setEmpty(false);
-    setResult(analyzeMessage(t));
-    setReportOpen(true);
+    setResult(analyzeMessage(input));
+    setIsExample(example);
+    setReportOpen(false);
+    requestAnimationFrame(() => {
+      summaryRef.current?.focus({ preventScroll: true });
+      if (window.matchMedia("(max-width: 1200px)").matches) {
+        summaryRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
+      }
+    });
   };
 
   const reset = () => {
@@ -181,7 +192,7 @@ function Index() {
                   variant="outline"
                   onClick={() => {
                     setText(ex.text);
-                    run(ex.text);
+                    run(ex.text, true);
                   }}
                 >
                   {t(ex.label)}
@@ -198,7 +209,7 @@ function Index() {
                     variant="outline"
                     onClick={() => {
                       setText(ex.text);
-                      run(ex.text);
+                      run(ex.text, true);
                     }}
                   >
                     {t(ex.label)}
@@ -208,17 +219,46 @@ function Index() {
             </details>
           </section>
         </div>
-        <div className="studio-results" aria-live="polite">
-          <h2>{result ? t("Il risultato dell'analisi") : t("Un controllo prima di agire")}</h2>
+        <div
+          className="studio-results studio-summary"
+          ref={summaryRef}
+          tabIndex={-1}
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          <h2>
+            {result
+              ? t(isExample ? "Analisi dell’esempio" : "Il risultato dell'analisi")
+              : t("Un controllo prima di agire")}
+          </h2>
           {result ? (
             <>
               <RiskGauge r={result} />
-              <p className="mb-5 text-muted-foreground">
-                {t(
-                  "Il report completo è disponibile in una finestra dedicata, con segnali e verifiche consigliate.",
-                )}
-              </p>
-              <Button type="button" onClick={() => setReportOpen(true)} className="w-full min-h-12">
+              <dl className="studio-summary-details">
+                <div>
+                  <dt>{t("Motivo principale")}</dt>
+                  <dd>
+                    {result.signals[0]
+                      ? signalCopy(result.signals[0], language).title
+                      : t("Non abbiamo trovato segnali noti di truffa in questo testo.")}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{t("Prima verifica consigliata")}</dt>
+                  <dd>
+                    {t(
+                      result.recommendations[0] ??
+                        "Verifica comunque richieste economiche o di dati prima di agire.",
+                    )}
+                  </dd>
+                </div>
+              </dl>
+              <Button
+                ref={reportButtonRef}
+                type="button"
+                onClick={() => setReportOpen(true)}
+                className="w-full min-h-12"
+              >
                 {t("Apri il report completo")}
               </Button>
             </>
@@ -257,7 +297,7 @@ function Index() {
               </ol>
               <p className="studio-empty-note">
                 {t(
-                  "Il report si aprirà in una finestra dedicata. Puoi anche provare uno degli esempi.",
+                  "Il riepilogo apparirà qui. Apri il report completo solo quando vuoi approfondire.",
                 )}
               </p>
             </div>
@@ -273,7 +313,7 @@ function Index() {
           }}
           onCloseAutoFocus={(event) => {
             event.preventDefault();
-            inputRef.current?.focus({ preventScroll: true });
+            (reportButtonRef.current ?? inputRef.current)?.focus({ preventScroll: true });
           }}
         >
           <div className="studio-report-heading">

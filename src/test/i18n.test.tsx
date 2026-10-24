@@ -46,6 +46,9 @@ describe("Authored interface translations", () => {
     const input = "Abbiamo cambiato IBAN. IT60X0542811101000000123456. Cliente Riservato.";
     fireEvent.change(screen.getByLabelText("Message text"), { target: { value: input } });
     fireEvent.click(screen.getByRole("button", { name: "Analyse message" }));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByText("First recommended check")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Open full report" }));
     const report = screen.getByRole("dialog", { name: "Analysis result" });
     expect(within(report).getAllByText("Request to change bank details")[0]).toBeInTheDocument();
     expect(

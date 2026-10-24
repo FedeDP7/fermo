@@ -920,3 +920,40 @@ textarea {
     gap: 2px;
   }
 }
+.studio-summary-details {
+  display: grid;
+  gap: 20px;
+  margin: 0 0 24px;
+}
+.studio-summary-details dt {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  margin-bottom: 4px;
+}
+.studio-summary-details dd {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+.studio-summary {
+  scroll-margin-top: 24px;
+}
+@media (max-width: 1200px) {
+  .studio-workspace {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .studio-editor {
+    display: contents;
+  }
+  .studio-editor > section:first-child {
+    order: 1;
+  }
+  .studio-summary {
+    order: 2;
+  }
+  .studio-examples {
+    order: 3;
+  }
+}

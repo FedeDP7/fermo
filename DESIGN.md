@@ -12,7 +12,7 @@ Approved direction: Studio (first visual proposal). Target: the analysis page an
 
 Validation: production build, TypeScript, 54 existing tests; browser checks of analysis, summary copying, stale-result clearing, and responsive layout at 390px. Publication remains through Lovable.
 
-Analysis reports open automatically in an accessible modal with a fixed header and internally scrolling body. The page keeps only a compact risk summary and a reopen button. Escape and the close control dismiss the modal; focus returns to the editor.
+Analysis and example buttons update a compact summary without opening a modal: level, strongest active signal and first recommended check. Examples are labelled explicitly. The full report opens only on request in an accessible modal with a fixed header and scrolling body. Closing returns focus to the report button; resetting returns focus to the editor. On mobile the summary follows the editor and precedes the example scenarios.
 
 ## Floating navigation and languages
 
