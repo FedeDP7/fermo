@@ -10,11 +10,31 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import Paragraph
 from reportlab.lib.styles import ParagraphStyle
+from reportlab.lib.utils import ImageReader
+from PIL import Image
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 W, H = 1280, 720
 NAVY, TEAL, WHITE, MUTED = '#0B1530', '#2DD4BF', '#F2F6FF', '#B3C1D9'
+# Match .studio-header .studio-logo in src/styles.css: a 36x41 viewport,
+# 66px-wide image at (-15, -4.5), brightness(0) invert(1).
+# Preserve the original alpha; clipping removes the wordmark embedded in PNG.
+original_logo = Image.open(ROOT / 'logo' / 'logo.png').convert('RGBA')
+white_logo = Image.new('RGBA', original_logo.size, (255, 255, 255, 0))
+white_logo.putalpha(original_logo.getchannel('A'))
+site_logo = ImageReader(white_logo)
+
+def draw_site_logo(x, y, scale=0.7):
+    c.saveState()
+    clip = c.beginPath()
+    clip.rect(x, y, 36 * scale, 41 * scale)
+    c.clipPath(clip, stroke=0)
+    image_height = 66 * original_logo.height / original_logo.width
+    c.drawImage(site_logo, x - 15 * scale,
+                y + (41 + 4.5 - image_height) * scale,
+                width=66 * scale, height=image_height * scale, mask='auto')
+    c.restoreState()
 for regular, bold in [
     (Path('C:/Windows/Fonts/arial.ttf'), Path('C:/Windows/Fonts/arialbd.ttf')),
     (Path('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'), Path('/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf')),
@@ -53,8 +73,7 @@ def start(number, section, title, subtitle=None):
         text(subtitle, 64, 198, 1140, 23, MUTED)
     c.setStrokeColor(HexColor('#263654')); c.setLineWidth(1)
     c.line(64, 49, 1216, 49)
-    c.drawImage(str(ROOT/'logo'/'logo.png'), 64, 14, width=25, height=27,
-                preserveAspectRatio=True, mask='auto')
+    draw_site_logo(64, 12)
     text('FERMO', 99, 681, 150, 16, WHITE, True)
     text('Starting Finance × Paradigma | Padova, 24 ottobre 2026', 265, 682, 820, 13, MUTED)
     text(f'{number:02d} / 13', 1130, 682, 100, 13, MUTED)
