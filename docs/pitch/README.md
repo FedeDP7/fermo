@@ -1,14 +1,16 @@
 # Pitch FERMO
 
-[Apri il pitch revisionato (PDF, 13 slide)](FERMO-pitch-revisionato.pdf).
+[Apri il pitch FERMO (PDF, 13 slide)](FERMO-pitch.pdf).
 
-Revisione del 24 ottobre 2026 per l'hackathon Starting Finance × Paradigma. Il PDF originale rimane fuori dal repository; questa versione corregge le affermazioni rispetto al prototipo e distingue funzionalità, ipotesi e roadmap.
+Pitch dell'hackathon Starting Finance × Paradigma, Padova, 24 ottobre 2026. Versione fornita dal team e pubblicata il 25 ottobre 2026, conservando struttura, impaginazione, immagini e logo originali, con correzioni fattuali e minimi ritocchi ai testi.
+
+`FERMO-pitch.pdf` è il documento di riferimento: è una copia identica dell'allegato «FERMO – Pitch.pdf», senza ulteriori modifiche al contenuto. Sostituisce la precedente versione con impaginazione ricostruita.
 
 ## Demo e accesso
 
 [Anteprima Lovable](https://preview--demo-fermo.lovable.app/): al controllo del 24 ottobre 2026 reindirizza al login Lovable. Non è un link pubblico utilizzabile senza autenticazione. Prima della presentazione usare il sito pubblicato con Lovable oppure avviare il progetto localmente. Il push su GitHub non pubblica automaticamente il sito.
 
-La slide 4 mostra una **schermata del prototipo locale**, non una prova dell'anteprima online. Il testo è sintetico:
+La slide 4 mostra uno **schema illustrativo**, non una schermata del sito. L'esito è coerente con il motore verificato sul seguente testo sintetico:
 
 > Abbiamo cambiato banca: per il saldo della fattura n. 118 usate da oggi il nuovo IBAN [IBAN]. Grazie per la rapidità.
 
@@ -23,11 +25,11 @@ Risultato verificato: **25/100, MEDIO**, un segnale attivo: «Richiesta di cambi
 - **Slide 8, protezione posta:** [Microsoft Defender for Office 365](https://www.microsoft.com/it-it/security/business/siem-and-xdr/microsoft-defender-office-365) e [Proofpoint Email Protection](https://www.proofpoint.com/us/products/email-protection).
 - **Slide 8, verifica pagamenti:** [documentazione ufficiale Trustpair](https://docs.trustpair.com/docs/general-information) e [FAQ Eftsure](https://www.eftsure.com/faq/). Esistono già prodotti dedicati alla verifica di fornitori e coordinate bancarie. Nessun test comparativo o vantaggio competitivo quantitativo è dichiarato.
 - **Slide 9:** il voucher non è una promessa di accesso al mercato o ammissibilità. Le condizioni del [MIMIT](https://www.mimit.gov.it/it/incentivi/sostegno-alla-domanda-di-servizi-di-cloud-computing-e-cyber-security) richiedono verifiche specifiche su fornitore, servizi e spese. Il modello non dipende dall'incentivo.
-- **Slide 3-6 e 10-12:** sorgenti e test del repository, base tecnica esaminata al commit `7c5fffd`. I 61 test verificano regressioni del codice, non accuratezza antifrode sul campo. Il controllo tecnico ha anche rilevato segnalazioni lint e dipendenze da aggiornare: non viene dichiarata una certificazione o prontezza produttiva.
-- **Slide 5, 7, 9 e 11:** segmento iniziale, prezzo medio di 600 euro/anno, obiettivo di 30-60 aziende e pilot con tre PMI sono ipotesi/proposte del team, non clienti, ricavi, partnership o impegni acquisiti. ARR indica ricavi ricorrenti annualizzati.
+- **Slide 3-6 e 10-12:** sorgenti e test del repository, base tecnica esaminata al commit `7c5fffd`. L'analisi è deterministica e locale; non verifica l'identità del mittente o la titolarità dell'IBAN. Le verifiche del codice non dimostrano l'efficacia antifrode sul campo. Integrazioni nei gestionali, registro verifiche e catalogo delle minacce sono roadmap, non funzionalità implementate. Audio e QR non vengono analizzati.
+- **Slide 5, 7, 9 e 11:** segmento iniziale, prezzo di 290-1.190 euro/anno per azienda (media ipotizzata 600 euro), obiettivo di 30-60 aziende paganti, canali commerciali e pilot sono ipotesi/proposte del team, non clienti, ricavi, partnership o impegni acquisiti. ARR indica ricavi ricorrenti annualizzati. TAM e SAM restano da stimare; 18-36 mila euro di ARR corrispondono allo scenario di 30-60 aziende a 600 euro/anno.
 - **Slide 13:** nomi e percorsi di studio ripresi dal pitch fornito dal team; non rappresentano affiliazioni o endorsement delle università.
 
-## Modifiche principali
+## Note sulla revisione
 
 - Esito demo coerente con il motore, senza modificare scoring e regole.
 - Nessuna promessa di autenticazione del mittente, verifica dell'IBAN o blocco dei pagamenti.
@@ -35,16 +37,10 @@ Risultato verificato: **25/100, MEDIO**, un segnale attivo: «Richiesta di cambi
 - Procedure consigliate e riepilogo condivisibile distinti da un registro verifiche, ancora assente.
 - Workspace, backend, integrazioni e dashboard reale indicati come futuri; panoramica attuale simulata.
 - Nessuna promessa di database minacce aggiornato, analisi audio o QR, partnership e voucher già acquisiti.
-- Chiusura con una richiesta concreta: trovare tre PMI per validare il bisogno.
+- Struttura, ordine delle 13 slide, logo, immagini e payoff conclusivo originali conservati.
 
-## Riproduzione e modifica
+## Aggiornare il documento
 
-Il sorgente editoriale e grafico è [build_pitch.py](build_pitch.py); la schermata sintetica è in `assets/demo-locale.png`. Non contiene messaggi reali, IBAN reali o credenziali.
+Per una nuova versione, sostituire `FERMO-pitch.pdf` con il PDF approvato dal team e aggiornare queste note. Conservare questo nome mantiene valido il collegamento nel README principale.
 
-Con Python 3 e `reportlab` disponibili:
-
-```sh
-python docs/pitch/build_pitch.py
-```
-
-Il generatore usa Arial su Windows o DejaVu Sans su Linux e incorpora i font nel PDF. Non effettua richieste remote. La resa tipografica può variare tra famiglie di font: controllare visivamente le slide dopo ogni rigenerazione. Il PDF è una nuova impaginazione 16:9 navy/teal, non una modifica del file originale.
+Il vecchio generatore `build_pitch.py`, il relativo screenshot e il PDF precedente sono rimossi dal ramo corrente perché appartenevano a un'altra impaginazione. Restano recuperabili dalla cronologia Git, che non viene riscritta. Non è incluso un generatore della versione attuale.

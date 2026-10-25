@@ -58,7 +58,7 @@ Stack: React, TypeScript, Tailwind CSS, TanStack Start, Vite, tldts e Vitest. Il
 
 ## GitHub e pubblicazione Lovable
 
-Il [pitch revisionato per l'hackathon](docs/pitch/FERMO-pitch-revisionato.pdf) è accompagnato da [fonti, limiti e istruzioni di rigenerazione](docs/pitch/README.md).
+Il [pitch per l'hackathon (PDF, 13 slide)](docs/pitch/FERMO-pitch.pdf) è accompagnato da [fonti e note di lettura](docs/pitch/README.md).
 
 L'[anteprima Lovable](https://preview--demo-fermo.lovable.app/) richiede autenticazione al controllo del 24 ottobre 2026; non è ancora un collegamento pubblico alla demo.
 
