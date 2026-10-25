@@ -1,21 +1,13 @@
-# Routes
+# Route FERMO
 
-TanStack Start uses **file-based routing**. Every `.tsx` file in this directory
-defines a route. Do **not** create `src/pages/`, `src/routes/_app/index.tsx`, or
-`app/layout.tsx` — those are Next.js / Remix conventions. The only root layout
-is `src/routes/__root.tsx`.
+Il progetto usa il routing basato su file di TanStack Start.
 
-## Conventions
-
-| File | URL |
+| File | Funzione |
 | --- | --- |
-| `index.tsx` | `/` |
-| `about.tsx` | `/about` |
-| `users/index.tsx` | `/users` |
-| `users/$id.tsx` | `/users/:id` (dynamic — bare `$`, no curly braces) |
-| `posts/{-$category}.tsx` | `/posts/:category?` (optional segment) |
-| `files/$.tsx` | `/files/*` (splat — read via `_splat` param, never `*`) |
-| `_layout.tsx` | layout route (renders children via `<Outlet />`) |
-| `__root.tsx` | app shell — wraps every page; preserve `<Outlet />` |
+| `__root.tsx` | Layout condiviso, navbar, provider, metadati di base e gestione degli errori |
+| `index.tsx` | `/`: analisi delle comunicazioni, riepilogo e report su richiesta |
+| `aziende.tsx` | `/aziende`: panoramica aziendale con dati esplicitamente simulati |
 
-`routeTree.gen.ts` is auto-generated. Don't edit it by hand.
+Conservare `<Outlet />` nel layout e le due pagine distinte. Il motore di analisi rimane in `src/engine`, indipendente da React.
+
+`src/routeTree.gen.ts` viene generato dal router ed è importato dall'app e dai test: non modificarlo a mano. Non aggiungere convenzioni di routing di Next.js o Remix.

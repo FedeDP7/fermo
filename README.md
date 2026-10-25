@@ -72,6 +72,10 @@ Versionare sorgenti, test, documentazione, asset effettivamente utilizzati, conf
 
 Le skill installate sotto `.agents/skills` sono strumenti locali facoltativi e non servono per compilare o usare FERMO. Il vecchio piano Lovable e lo screenshot di lavoro rimangono esclusi dal ramo corrente. File rimossi dal ramo possono comunque essere presenti nella cronologia Git.
 
+## Partecipare
+
+Per segnalazioni e proposte di modifica, vedere [CONTRIBUTING.md](CONTRIBUTING.md). Usare esclusivamente esempi sintetici o anonimizzati nelle issue e nelle pull request, senza messaggi aziendali reali o credenziali.
+
 ## Licenze e componenti terze
 
 Non è stata scelta una licenza open-source per il codice originale FERMO. Le dipendenze e le componenti terze mantengono le proprie licenze: vedere [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

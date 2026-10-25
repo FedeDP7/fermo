@@ -25,6 +25,10 @@ dist-ssr
 !.vscode/extensions.json
 .idea
 .DS_Store
+Thumbs.db
+Desktop.ini
+*.bak
+*.tmp
 *.suo
 *.ntvs*
 *.njsproj

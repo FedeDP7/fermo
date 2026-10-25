@@ -1,6 +1,6 @@
 # FERMO — Studio
 
-Approved direction: Studio (first visual proposal). Target: the analysis page and shared navigation, preserving the existing engine and separate company demo route.
+Studio is the visual direction for the analysis page and shared navigation, preserving the independent engine and separate company demo route.
 
 - Light canvas, white workspace, navy typography, teal primary action, Manrope.
 - Desktop: brand introduction on the left, communication editor in the center, actual analysis on the right. At intermediate widths results follow the editor; on phones the layout becomes a single column.
@@ -10,7 +10,7 @@ Approved direction: Studio (first visual proposal). Target: the analysis page an
 - Input remains limited to 10,000 characters. Editing input clears the prior result. The engine, scoring, recommendations, and privacy-safe summaries remain unchanged.
 - Preserve labels identifying simulated company information and future SaaS features.
 
-Validation: production build, TypeScript, 54 existing tests; browser checks of analysis, summary copying, stale-result clearing, and responsive layout at 390px. Publication remains through Lovable.
+When changing this design, verify the production build, TypeScript and regression tests, plus analysis, summary copying, stale-result clearing and mobile layout. Publication remains through Lovable.
 
 Analysis and example buttons update a compact summary without opening a modal: level, strongest active signal and first recommended check. Examples are labelled explicitly. The full report opens only on request in an accessible modal with a fixed header and scrolling body. Closing returns focus to the report button; resetting returns focus to the editor. On mobile the summary follows the editor and precedes the example scenarios.
 
